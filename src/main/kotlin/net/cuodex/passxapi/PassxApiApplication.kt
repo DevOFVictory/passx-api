@@ -8,5 +8,5 @@ class PassxApiApplication
 
 fun main(args: Array<String>) {
 	runApplication<PassxApiApplication>(*args)
-	println("hi")
+	println("JSON rest API successfully started.")
 }
