@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("passx/v2/authentication")
 public class UserAccountController {
 
-    private UserAccountRepository userAccountRepository;
+    private final UserAccountRepository userAccountRepository;
 
     public UserAccountController(UserAccountRepository userAccountRepository) {
         this.userAccountRepository = userAccountRepository;
