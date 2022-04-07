@@ -10,10 +10,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
-
 public class AESManager {
 
-    private final String ENCRYPTION_TEST = "encryptionTest";
+    public static final String ENCRYPTION_TEST = "encryptionTest", SALT = "WyuZFx5zOy65AsZRGLJcn8OFuGq5LvMI";
 
     private Cipher cipher;
     private final String key, iv;
@@ -24,7 +23,6 @@ public class AESManager {
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();
         }
-        String SALT = "WyuZFx5zOy65AsZRGLJcn8OFuGq5LvMI";
         this.key = (key + SALT).substring(0, 32);
         this.iv = this.key.substring(0, 16);
     }
@@ -60,8 +58,9 @@ public class AESManager {
             cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
 
             byte[] original = cipher.doFinal(encrypted);
+            String originalString = new String(original);
 
-            return new String(original);
+            return originalString;
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,6 +2,7 @@ package net.cuodex.passxapi.returnables;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.cuodex.passxapi.utils.OtherUtils;
 import org.springframework.http.HttpStatus;
 
 import java.text.SimpleDateFormat;
@@ -20,14 +21,14 @@ public class DefaultReturnable {
 
     public DefaultReturnable(String message) {
         this.message = message;
-        this.timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date());
+        this.timestamp = OtherUtils.getTimestamp();
         this.status = HttpStatus.OK.value();
         this.data = new HashMap<>();
     }
 
     public DefaultReturnable(int statusCode, String message) {
         this.message = message;
-        this.timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date());
+        this.timestamp = OtherUtils.getTimestamp();
         this.status = statusCode;
         this.data = new HashMap<>();
     }

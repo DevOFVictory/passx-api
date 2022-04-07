@@ -2,15 +2,17 @@ package net.cuodex.passxapi.controller;
 
 import net.cuodex.passxapi.dto.LoginDto;
 import net.cuodex.passxapi.dto.RegisterDto;
+import net.cuodex.passxapi.dto.SessionDto;
+import net.cuodex.passxapi.dto.UpdateUserDto;
 import net.cuodex.passxapi.entity.Role;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.RoleRepository;
 import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.utils.AuthenticationManager;
+import net.cuodex.passxapi.utils.OtherUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -31,9 +33,11 @@ public class UserAccountController {
 
     @PostMapping("/login")
     public DefaultReturnable authenticateUser(@RequestBody LoginDto loginDto){
-        System.out.println("logged in");
         String sessionId = authenticationManager.authenticate(
-                loginDto.getUsernameOrEmail(), loginDto.getPassword());
+                loginDto.getUsername(), loginDto.getPassword());
+
+        if (sessionId.startsWith("ERROR: "))
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED.value(), sessionId.replace("ERROR: ", ""));
 
         DefaultReturnable returnable = new DefaultReturnable(HttpStatus.OK.value(), "Successfully logged in.");
         returnable.addData("sessionId", sessionId);
@@ -44,11 +48,9 @@ public class UserAccountController {
     @PostMapping("/create")
     public DefaultReturnable registerUser(@RequestBody RegisterDto signUpDto){
 
-        System.out.println("called");
-
         String username = signUpDto.getUsername();
         String email = signUpDto.getEmail();
-        String passwordTest = signUpDto.getPassword();
+        String passwordTest = signUpDto.getPasswordTest();
 
 
         if (!(username.matches("^[a-zA-Z0-9_]*$") && username.length() >= 3 && username.length() <= 16))
@@ -73,7 +75,9 @@ public class UserAccountController {
         UserAccount user = new UserAccount();
         user.setUsername(signUpDto.getUsername());
         user.setEmail(signUpDto.getEmail());
-        user.setPassword(signUpDto.getPassword());
+        user.setPasswordTest(signUpDto.getPasswordTest());
+        user.setCreatedAt(OtherUtils.getTimestamp());
+        user.setLastSeen(OtherUtils.getTimestamp());
 
         Role roles = roleRepository.findByName("USER").get();
         user.setRoles(Collections.singleton(roles));
@@ -83,4 +87,43 @@ public class UserAccountController {
         return new DefaultReturnable("User successfully created.").addData("user", user);
 
     }
+
+    @PostMapping("/logout")
+    public DefaultReturnable logoutUser(@RequestBody SessionDto sessionDto){
+        UserAccount user = authenticationManager.getUser(sessionDto.getSessionId());
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED.value(), "Session id is invalid or expired.");
+
+        authenticationManager.invalidateSession(sessionDto.getSessionId());
+        return new DefaultReturnable("Successfully logged out.");
+    }
+
+    @GetMapping("/information")
+    public DefaultReturnable getUserInformation(@RequestBody SessionDto sessionDto){
+        UserAccount user = authenticationManager.getUser(sessionDto.getSessionId());
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED.value(), "Session id is invalid or expired.");
+
+        return new DefaultReturnable("Successfully retrieved user information.").addData("user", user);
+    }
+
+    @DeleteMapping()
+    public DefaultReturnable deleteUser(@RequestBody SessionDto sessionDto){
+        UserAccount user = authenticationManager.getUser(sessionDto.getSessionId());
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED.value(), "Session id is invalid or expired.");
+
+        return new DefaultReturnable("Successfully retrieved user information.").addData("user", user);
+    }
+
+//    @PatchMapping("/information")
+//    public DefaultReturnable updateUserInformation(@RequestBody UpdateUserDto updateUserDto){
+//        UserAccount user = authenticationManager.getUser(userAccount.getSessionId());
+//        user.setUsername(userAccount.getUsername());
+//        user.setEmail(userAccount.getEmail());
+//        user.setPasswordTest(userAccount.getPasswordTest());
+//        userRepository.save(user);
+//        return new DefaultReturnable("Successfully updated user information.").addData("user", user);
+//    }
 }

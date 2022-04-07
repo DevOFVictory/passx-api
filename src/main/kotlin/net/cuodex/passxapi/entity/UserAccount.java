@@ -1,5 +1,6 @@
 package net.cuodex.passxapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -17,7 +18,11 @@ public class UserAccount {
     private long id;
     private String username;
     private String email;
-    private String password;
+
+    @JsonIgnore
+    private String passwordTest;
+    private String createdAt;
+    private String lastSeen;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles",
