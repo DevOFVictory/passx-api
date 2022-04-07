@@ -8,7 +8,7 @@
 <h3 align="center">PassX - API</h3>
 
   <p align="center">
-    A safe place for your passwords on your smartphone!
+    A safe place for your passwords from everywhere
     <br />
     <a href="https://passx.cuodex.net"><strong>Go to the Webinterface »</strong></a>
     <br />
@@ -30,6 +30,8 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 
 ### Requirements
 - Setup working Java 17 JDK environment
+- Setup MySQL database server on Port 3006 and db-name `passx` (or change it in `src/main/ressources/application.properties`)
+- Create MySQL User Default: `passx:passx` with basic structure and data permission for database above
 
 ### Links
 - Webclient: https://github.com/CuodeX/PassX-Webclient
