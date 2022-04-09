@@ -3,7 +3,8 @@ package net.cuodex.passxapi.dto;
 import lombok.Data;
 
 @Data
-public class LoginDto {
-    private String username;
+public class DeleteAccountDto {
+
+    private String sessionId;
     private String passwordTest;
 }

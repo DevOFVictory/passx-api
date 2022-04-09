@@ -1,7 +1,6 @@
 package net.cuodex.passxapi;
 
-import net.cuodex.passxapi.repository.UserAccountRepository;
-import net.cuodex.passxapi.utils.AuthenticationManager;
+import net.cuodex.passxapi.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ public class PassxApiApplication {
 	public static final Logger LOGGER = LoggerFactory.getLogger(PassxApiApplication.class);
 
 	@Autowired
-	private AuthenticationManager authenticationManager;
+	private AuthenticationService authenticationManager;
 
 	public static void main(String[] args) {
 

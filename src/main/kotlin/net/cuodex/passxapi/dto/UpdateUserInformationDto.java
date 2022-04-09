@@ -5,9 +5,10 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class UpdateUserDto {
+public class UpdateUserInformationDto {
 
     private String sessionId;
-    private Map<String, String> userData;
+    private String passwordTest;
+    private Map<String, String> data;
 
 }
