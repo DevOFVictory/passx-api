@@ -39,5 +39,19 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 - Hosted service: https://passx.cuodex.net
 - More project information: https://cuodex.net/passx
 
+### To Do's
+- [x] Implement user authentication
+- [x] Delete Account Endpoint
+- [ ] Correct Status Code
+- [ ] Encryption
+- [ ] Correct status code
+- [ ] Encryption
+- [x] Session System
+- [ ] Correct type check + null
+- [ ] Credential add/remove/edit
+- [ ] Add more debug messages
+- [ ] CLI + Command System
+- [ ] Docker Compose support
+
 ### Documentation
 Coming soon... :)

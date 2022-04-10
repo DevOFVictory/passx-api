@@ -58,4 +58,5 @@ public class AuthController {
         return authenticationService.checkSession(sessionDto.getSessionId());
     }
 
+
 }
