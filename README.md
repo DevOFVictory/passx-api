@@ -42,7 +42,7 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 ### To Do's
 - [x] Implement user authentication
 - [x] Delete Account Endpoint
-- [ ] Correct Status Code
+- [x] Correct Status Code
 - [ ] Encryption
 - [ ] Correct status code
 - [ ] Encryption

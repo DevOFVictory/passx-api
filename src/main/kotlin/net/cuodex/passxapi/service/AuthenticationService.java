@@ -94,9 +94,7 @@ public class AuthenticationService {
 
     public DefaultReturnable createUser(final String username, final String email, final String passwordTest) {
 
-
         if (!(username.matches("^[a-zA-Z0-9_]*$") && username.length() >= 3 && username.length() <= 16))
-
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid username.");
 
 
@@ -108,9 +106,8 @@ public class AuthenticationService {
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid password test.");
 
         // add check for username exists in a DB
-        if(userRepository.existsByUsername(username)){
+        if(userRepository.existsByUsername(username))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Username already taken.");
-        }
 
 
         // create user object
