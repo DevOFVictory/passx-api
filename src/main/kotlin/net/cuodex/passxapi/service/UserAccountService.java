@@ -1,5 +1,6 @@
 package net.cuodex.passxapi.service;
 
+import net.cuodex.passxapi.entity.LoginCredential;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
@@ -7,7 +8,10 @@ import net.cuodex.passxapi.utils.OtherUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class UserAccountService {
@@ -76,4 +80,17 @@ public class UserAccountService {
 
     }
 
+    public DefaultReturnable changePassword(String sessionId, String passwordTest, String newPasswordTest) {
+        UserAccount user = authenticationService.getUser(sessionId);
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+
+        if (!user.getPasswordTest().equals(passwordTest))
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session. ('"+user.getUsername()+"')");
+
+        user.setPasswordTest(newPasswordTest);
+        userRepository.save(user);
+
+        return new DefaultReturnable("The master password was successfully changed and all entries were updated.");
+    }
 }

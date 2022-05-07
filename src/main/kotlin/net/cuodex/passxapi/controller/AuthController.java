@@ -6,7 +6,6 @@ import net.cuodex.passxapi.dto.SessionDto;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.service.AuthenticationService;
-import net.cuodex.passxapi.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +33,7 @@ public class AuthController {
         DefaultReturnable returnable = new DefaultReturnable(HttpStatus.OK, "Successfully logged in.");
         returnable.addData("sessionId", sessionId);
 
+
         return returnable.getResponseEntity();
     }
 
@@ -55,7 +55,8 @@ public class AuthController {
     }
 
     @PostMapping("/check-session")
-    public ResponseEntity<DefaultReturnable> checkSession(SessionDto sessionDto) {
+    public ResponseEntity<DefaultReturnable> checkSession(@RequestBody SessionDto sessionDto) {
+        System.out.println(sessionDto.getSessionId());
         return authenticationService.checkSession(sessionDto.getSessionId()).getResponseEntity();
     }
 

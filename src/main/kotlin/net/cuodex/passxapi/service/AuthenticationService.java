@@ -30,7 +30,6 @@ public class AuthenticationService {
         if (!userRepository.existsByUsername(username))
             return "ERROR: Username does not exists.";
 
-//        AESManager aesManager = new AESManager(password);
 
         UserAccount userAccount = userRepository.findByUsername(username).get();
 
@@ -106,7 +105,7 @@ public class AuthenticationService {
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid password test.");
 
         // add check for username exists in a DB
-        if(userRepository.existsByUsername(username))
+        if (userRepository.existsByUsername(username))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Username already taken.");
 
 
@@ -141,6 +140,10 @@ public class AuthenticationService {
     }
 
     public DefaultReturnable checkSession(String sessionId) {
-        return !isSessionValid(sessionId) ? new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.") : new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is valid.");
+        if (isSessionValid(sessionId)) {
+            return new DefaultReturnable(HttpStatus.OK, "Session id is valid.");
+        }else {
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+        }
     }
 }

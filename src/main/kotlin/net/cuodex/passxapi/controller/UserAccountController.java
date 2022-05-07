@@ -5,10 +5,8 @@ import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.service.AuthenticationService;
 import net.cuodex.passxapi.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/account")
@@ -35,5 +33,10 @@ public class UserAccountController {
     @PutMapping("/information")
     public ResponseEntity<DefaultReturnable> updateUserInformation(@RequestBody UpdateUserInformationDto updateUserInformationDto){
         return userAccountService.updateInformation(updateUserInformationDto.getSessionId(), updateUserInformationDto.getPasswordTest(), updateUserInformationDto.getData()).getResponseEntity();
+    }
+
+    @PatchMapping("/change-password")
+    public ResponseEntity<DefaultReturnable> updateUserInformation(@RequestBody ChangePasswordDto changePasswordDto){
+        return userAccountService.changePassword(changePasswordDto.getSessionId(), changePasswordDto.getPasswordTest(), changePasswordDto.getNewPasswordTest()).getResponseEntity();
     }
 }
