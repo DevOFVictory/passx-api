@@ -21,9 +21,23 @@ public class LoginCredential {
     @Getter @Setter
     private String title, url, description, username, email, password;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_account_id", referencedColumnName = "id")
     @JsonIgnore
-    @Getter
+    @Getter @Setter
     private UserAccount userAccount;
+
+    @Override
+    public String toString() {
+        return "LoginCredential{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", userAccount=" + userAccount +
+                '}';
+    }
 }

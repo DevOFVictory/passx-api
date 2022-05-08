@@ -33,12 +33,15 @@ public class UserAccount {
     private String lastSeen;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Getter @Setter
     private Set<LoginCredential> loginCredentials = new HashSet<>();
 
     public void addCredential(LoginCredential loginCredential) {
+        loginCredential.setUserAccount(this);
+        System.out.println(loginCredential);
         loginCredentials.add(loginCredential);
+        System.out.println(loginCredentials.size());
     }
 
 }

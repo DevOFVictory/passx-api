@@ -119,7 +119,7 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
-        return new DefaultReturnable("User successfully created.").addData("user", user);
+        return new DefaultReturnable(HttpStatus.CREATED, "User successfully created.").addData("user", user);
     }
 
     public DefaultReturnable deleteUser(String sessionId, String passwordTest) {

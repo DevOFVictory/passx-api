@@ -9,12 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.swing.text.html.parser.Entity;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 @Service
 public class UserAccountService {
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -26,6 +32,7 @@ public class UserAccountService {
         UserAccount user = authenticationService.getUser(sessionId);
         if (user == null)
             return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+
 
         return new DefaultReturnable("Successfully retrieved user information.").addData("user", user);
     }

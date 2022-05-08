@@ -3,7 +3,9 @@ package net.cuodex.passxapi.controller;
 import net.cuodex.passxapi.dto.LoginDto;
 import net.cuodex.passxapi.dto.RegisterDto;
 import net.cuodex.passxapi.dto.SessionDto;
+import net.cuodex.passxapi.entity.LoginCredential;
 import net.cuodex.passxapi.entity.UserAccount;
+import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class AuthController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private UserAccountRepository userAccountRepository;
+
 
     @PostMapping("/login")
     public ResponseEntity<DefaultReturnable> authenticateUser(@RequestBody LoginDto loginDto){
@@ -32,7 +37,6 @@ public class AuthController {
 
         DefaultReturnable returnable = new DefaultReturnable(HttpStatus.OK, "Successfully logged in.");
         returnable.addData("sessionId", sessionId);
-
 
         return returnable.getResponseEntity();
     }
