@@ -69,7 +69,7 @@ public class StorageService {
 
         user.addCredential(credential);
 
-        userAccountRepository.save(user).getId();
+        userAccountRepository.save(user);
 
         return new DefaultReturnable(HttpStatus.CREATED, "Entry was successfully created.").addData("entry", credential);
 
