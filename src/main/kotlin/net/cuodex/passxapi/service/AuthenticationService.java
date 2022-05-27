@@ -118,6 +118,7 @@ public class AuthenticationService {
         user.setLastSeen(OtherUtils.getTimestamp());
 
         userRepository.save(user);
+        PassxApiApplication.LOGGER.info("User '" + username + "' successfully created.");
 
         return new DefaultReturnable(HttpStatus.CREATED, "User successfully created.").addData("user", user);
     }

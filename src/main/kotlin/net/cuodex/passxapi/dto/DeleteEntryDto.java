@@ -4,8 +4,8 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 @Data
-public class SessionDto {
+public class DeleteEntryDto {
 
-    private String sessionId;
 
+    String sessionId;
 }

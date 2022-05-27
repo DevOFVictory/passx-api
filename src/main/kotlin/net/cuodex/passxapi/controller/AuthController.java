@@ -11,10 +11,13 @@ import net.cuodex.passxapi.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,12 +26,9 @@ public class AuthController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @Autowired
-    private UserAccountRepository userAccountRepository;
-
 
     @PostMapping("/login")
-    public ResponseEntity<DefaultReturnable> authenticateUser(@RequestBody LoginDto loginDto){
+    public ResponseEntity<DefaultReturnable> authenticateUser(@Valid @RequestBody LoginDto loginDto){
         String sessionId = authenticationService.authenticate(
                 loginDto.getUsername(), loginDto.getPasswordTest());
 
@@ -42,14 +42,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterDto signUpDto){
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterDto signUpDto){
 
         return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail(), signUpDto.getPasswordTest()).getResponseEntity();
 
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<DefaultReturnable> logoutUser(@RequestBody SessionDto sessionDto){
+    public ResponseEntity<DefaultReturnable> logoutUser(@Valid @RequestBody SessionDto sessionDto){
         UserAccount user = authenticationService.getUser(sessionDto.getSessionId());
         if (user == null)
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.").getResponseEntity();
@@ -59,8 +59,7 @@ public class AuthController {
     }
 
     @PostMapping("/check-session")
-    public ResponseEntity<DefaultReturnable> checkSession(@RequestBody SessionDto sessionDto) {
-        System.out.println(sessionDto.getSessionId());
+    public ResponseEntity<DefaultReturnable> checkSession(@Valid @RequestBody SessionDto sessionDto) {
         return authenticationService.checkSession(sessionDto.getSessionId()).getResponseEntity();
     }
 

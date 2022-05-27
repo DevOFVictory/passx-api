@@ -41,9 +41,7 @@ public class UserAccount {
 
     public void addCredential(LoginCredential loginCredential) {
         loginCredential.setUserAccount(this);
-        System.out.println(loginCredential);
         loginCredentials.add(loginCredential);
-        System.out.println(loginCredentials.size());
     }
 
     @Override

@@ -1,6 +1,6 @@
 package net.cuodex.passxapi.service;
 
-import net.cuodex.passxapi.entity.LoginCredential;
+import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
@@ -9,18 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.swing.text.html.parser.Entity;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 public class UserAccountService {
 
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -83,6 +76,7 @@ public class UserAccountService {
             user.setEmail(email);
 
         userRepository.save(user);
+        PassxApiApplication.LOGGER.info("User '" + username + "' successfully updated information.");
         return new DefaultReturnable("Successfully updated user information.").addData("user", user);
 
     }
@@ -98,6 +92,7 @@ public class UserAccountService {
         user.setPasswordTest(newPasswordTest);
         userRepository.save(user);
 
+        PassxApiApplication.LOGGER.info("User '" + user.getUsername() + "' successfully changed master password.");
         return new DefaultReturnable("The master password was successfully changed and all entries were updated.");
     }
 }
