@@ -35,7 +35,7 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 
 ### Links
 - Webclient: https://github.com/CuodeX/PassX-Webclient
-- Mobile client: https://github.com/CuodeX/PassX-Webclient
+- Mobile client: https://github.com/DevOFVictory/PassX-Mobile
 - Hosted service: https://passx.cuodex.net
 - More project information: https://cuodex.net/passx
 
@@ -43,15 +43,14 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 - [x] Implement user authentication
 - [x] Delete Account Endpoint
 - [x] Correct Status Code
-- [ ] Encryption
-- [ ] Correct status code
-- [ ] Encryption
+- [x] Encryption
+- [x] Correct status code
 - [x] Session System
-- [ ] Correct type check + null
-- [ ] Credential add/remove/edit
-- [ ] Add more debug messages
+- [x] Correct type check + null
+- [x] Credential add/remove/edit
+- [x] Add more debug messages
 - [ ] CLI + Command System
 - [ ] Docker Compose support
 
 ### Documentation
-Coming soon... :)
+https://documenter.getpostman.com/view/18057854/UVyxQZPu
