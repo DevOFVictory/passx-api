@@ -1,5 +1,6 @@
 documentation.txt
 src/main/resources/application.properties
+src/main/resources/passx-ssl.pkcs12
 
 HELP.md
 target/
