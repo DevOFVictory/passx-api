@@ -101,9 +101,6 @@ public class AuthenticationService {
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid email address.");
 
 
-        if (!passwordTest.matches("^[a-zA-Z0-9=]*$"))
-            return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid password test.");
-
         // add check for username exists in a DB
         if (userRepository.existsByUsername(username))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Username already taken.");
