@@ -42,7 +42,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<DefaultReturnable> registerUser(@Valid @RequestBody RegisterDto signUpDto){
-        return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail(), signUpDto.getPasswordTest()).getResponseEntity();
+        return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail().toLowerCase(), signUpDto.getPasswordTest()).getResponseEntity();
 
     }
 

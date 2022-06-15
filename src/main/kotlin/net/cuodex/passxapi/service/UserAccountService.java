@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -56,7 +57,7 @@ public class UserAccountService {
 
         }
 
-        String email = data.get("email");
+        String email = data.get("email").toLowerCase();
 
         if (email != null) {
             if (!OtherUtils.isEmailValid(email))
