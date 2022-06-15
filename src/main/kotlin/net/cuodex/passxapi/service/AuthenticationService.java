@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ public class AuthenticationService {
         String sessionId = UUID.randomUUID().toString();
 
         // deactivate old sessions
-        for (Map.Entry<String, UserAccount> entry : this.activeSessions.entrySet()) {
+        for (Map.Entry<String, UserAccount> entry : new HashSet<>(this.activeSessions.entrySet())) {
             if (entry.getValue().equals(userAccount))
                 this.activeSessions.remove(entry.getKey());
         }

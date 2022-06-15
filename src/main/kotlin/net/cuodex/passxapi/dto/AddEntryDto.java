@@ -8,8 +8,6 @@ import org.jetbrains.annotations.NotNull;
 public class AddEntryDto {
 
     @NotNull
-    private String sessionId;
-    @NotNull
     private String entryService, entryUrl, entryDescription, entryUsername, entryEmail, entryPassword;
 
 }

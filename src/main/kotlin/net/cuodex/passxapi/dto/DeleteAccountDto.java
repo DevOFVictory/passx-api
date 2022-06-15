@@ -7,7 +7,5 @@ import org.jetbrains.annotations.NotNull;
 public class DeleteAccountDto {
 
     @NotNull
-    private String sessionId;
-    @NotNull
     private String passwordTest;
 }

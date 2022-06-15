@@ -1,6 +1,9 @@
 documentation.txt
 src/main/resources/application.properties
-src/main/resources/passx-ssl.pkcs12
+src/main/resources/keystore.p12
+keystore.p12
+target/keystore.p12
+passx/keystore.p12
 
 HELP.md
 target/

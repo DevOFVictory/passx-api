@@ -22,23 +22,27 @@ public class UserAccountController {
 
 
     @DeleteMapping("")
-    public ResponseEntity<DefaultReturnable> deleteUser(@Valid @RequestBody DeleteAccountDto deleteAccDto){
-        return authenticationService.deleteUser(deleteAccDto.getSessionId(), deleteAccDto.getPasswordTest()).getResponseEntity();
+    public ResponseEntity<DefaultReturnable> deleteUser(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody DeleteAccountDto deleteAccDto){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return authenticationService.deleteUser(sessionId, deleteAccDto.getPasswordTest()).getResponseEntity();
     }
 
     @GetMapping("/information")
-    public ResponseEntity<DefaultReturnable> getUserInformation(@Valid @RequestBody SessionDto sessionDto){
-        return userAccountService.getInformation(sessionDto.getSessionId()).getResponseEntity();
+    public ResponseEntity<DefaultReturnable> getUserInformation(@RequestHeader(value = "Authorization") String sessionId){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.getInformation(sessionId).getResponseEntity();
     }
 
 
     @PutMapping("/information")
-    public ResponseEntity<DefaultReturnable> updateUserInformation(@Valid @RequestBody UpdateUserInformationDto updateUserInformationDto){
-        return userAccountService.updateInformation(updateUserInformationDto.getSessionId(), updateUserInformationDto.getPasswordTest(), updateUserInformationDto.getData()).getResponseEntity();
+    public ResponseEntity<DefaultReturnable> updateUserInformation(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody UpdateUserInformationDto updateUserInformationDto){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.updateInformation(sessionId, updateUserInformationDto.getPasswordTest(), updateUserInformationDto.getData()).getResponseEntity();
     }
 
     @PatchMapping("/change-password")
-    public ResponseEntity<DefaultReturnable> updateUserInformation(@Valid @RequestBody ChangePasswordDto changePasswordDto){
-        return userAccountService.changePassword(changePasswordDto.getSessionId(), changePasswordDto.getPasswordTest(), changePasswordDto.getNewPasswordTest()).getResponseEntity();
+    public ResponseEntity<DefaultReturnable> updateUserInformation(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody ChangePasswordDto changePasswordDto){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.changePassword(sessionId, changePasswordDto.getPasswordTest(), changePasswordDto.getNewPasswordTest()).getResponseEntity();
     }
 }

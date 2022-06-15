@@ -7,8 +7,6 @@ import org.jetbrains.annotations.NotNull;
 public class ChangePasswordDto {
 
     @NotNull
-    private String sessionId;
-    @NotNull
     private String passwordTest;
     @NotNull
     private String newPasswordTest;

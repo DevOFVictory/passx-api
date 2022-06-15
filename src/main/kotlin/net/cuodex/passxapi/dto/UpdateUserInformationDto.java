@@ -9,8 +9,6 @@ import java.util.Map;
 public class UpdateUserInformationDto {
 
     @NotNull
-    private String sessionId;
-    @NotNull
     private String passwordTest;
     @NotNull
     private Map<String, String> data;
