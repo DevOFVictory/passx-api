@@ -92,7 +92,7 @@ public class AuthenticationService {
         activeSessions.put(sessionId, userRepository.getById(id));
     }
 
-    public DefaultReturnable createUser(final String username, final String email, final String passwordTest) {
+    public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption) {
 
         if (!(username.matches("^[a-zA-Z0-9_]*$") && username.length() >= 3 && username.length() <= 16))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid username.");
@@ -114,6 +114,7 @@ public class AuthenticationService {
         user.setPasswordTest(passwordTest);
         user.setCreatedAt(OtherUtils.getTimestamp());
         user.setLastSeen(OtherUtils.getTimestamp());
+        user.setServerSideEncryption(serverSideEncryption);
 
         userRepository.save(user);
         PassxApiApplication.LOGGER.info("User '" + username + "' successfully created.");

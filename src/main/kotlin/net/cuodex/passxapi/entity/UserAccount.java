@@ -10,8 +10,8 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@ToString
 @RequiredArgsConstructor
+@ToString
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"username"})
 })
@@ -33,6 +33,9 @@ public class UserAccount {
     private String createdAt;
     @Getter @Setter
     private String lastSeen;
+    @Getter @Setter
+    private Boolean serverSideEncryption;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

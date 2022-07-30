@@ -12,4 +12,6 @@ public class RegisterDto {
     private String email;
     @NotNull
     private String passwordTest;
+    @NotNull
+    private Boolean serverSideEncryption;
 }

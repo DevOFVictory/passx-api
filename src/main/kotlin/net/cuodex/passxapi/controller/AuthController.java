@@ -29,7 +29,7 @@ public class AuthController {
                 loginDto.getUsername(), loginDto.getPasswordTest());
 
         if (sessionId.startsWith("ERROR: "))
-            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, sessionId.replace("ERROR: ", "")).getResponseEntity();
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Username or password is invalid").getResponseEntity();
 
         DefaultReturnable returnable = new DefaultReturnable(HttpStatus.OK, "Successfully logged in.");
         UserAccount user = authenticationService.getUser(sessionId);
@@ -42,7 +42,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<DefaultReturnable> registerUser(@Valid @RequestBody RegisterDto signUpDto){
-        return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail().toLowerCase(), signUpDto.getPasswordTest()).getResponseEntity();
+        return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail().toLowerCase(), signUpDto.getPasswordTest(), signUpDto.getServerSideEncryption()).getResponseEntity();
 
     }
 

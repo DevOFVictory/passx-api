@@ -22,7 +22,7 @@ public class UserAccountController {
 
 
     @DeleteMapping("")
-    public ResponseEntity<DefaultReturnable> deleteUser(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody DeleteAccountDto deleteAccDto){
+    public ResponseEntity<DefaultReturnable> deleteUser(@RequestHeader(value = "Authorization") String sessionId, @RequestBody DeleteAccountDto deleteAccDto){
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
         return authenticationService.deleteUser(sessionId, deleteAccDto.getPasswordTest()).getResponseEntity();
     }
@@ -43,6 +43,6 @@ public class UserAccountController {
     @PatchMapping("/change-password")
     public ResponseEntity<DefaultReturnable> updateUserInformation(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody ChangePasswordDto changePasswordDto){
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
-        return userAccountService.changePassword(sessionId, changePasswordDto.getPasswordTest(), changePasswordDto.getNewPasswordTest()).getResponseEntity();
+        return userAccountService.changePassword(sessionId, changePasswordDto.getPasswordTest(), changePasswordDto.getNewPasswordTest(), changePasswordDto.getEntries()).getResponseEntity();
     }
 }
