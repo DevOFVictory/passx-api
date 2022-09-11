@@ -38,7 +38,7 @@ public class UserAccount {
 
 
     @JsonIgnore
-    @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @Getter @Setter
     private Set<LoginCredential> loginCredentials = new HashSet<>();
 

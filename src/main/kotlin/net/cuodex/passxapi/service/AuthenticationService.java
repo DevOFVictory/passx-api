@@ -17,7 +17,7 @@ import java.util.UUID;
 @Service
 public class AuthenticationService {
 
-    private final Map<String, UserAccount> activeSessions;
+    private final Map<String, Long> activeSessions;
 
     @Autowired
     private UserAccountRepository userRepository;
@@ -45,15 +45,19 @@ public class AuthenticationService {
         if (!password.equals(encryptionTest))
             return "ERROR: Password is invalid.";
 
-        String sessionId = UUID.randomUUID().toString();
+        String sessionId = "";
+        do {
+            sessionId = UUID.randomUUID().toString();
+        }while (activeSessions.containsKey(sessionId));
 
         // deactivate old sessions
-        for (Map.Entry<String, UserAccount> entry : new HashSet<>(this.activeSessions.entrySet())) {
-            if (entry.getValue().equals(userAccount))
-                this.activeSessions.remove(entry.getKey());
+        for (String s : activeSessions.keySet()) {
+            if (activeSessions.get(s) == userAccount.getId()) {
+                activeSessions.remove(s);
+            }
         }
 
-        this.activeSessions.put(sessionId, userAccount);
+        this.activeSessions.put(sessionId, userAccount.getId());
 
 
         PassxApiApplication.LOGGER.info("User '" + username + "' successfully authenticated. ("+sessionId+")");
@@ -70,26 +74,30 @@ public class AuthenticationService {
     }
 
     public UserAccount getUser(String sessionId) {
-        UserAccount userAccount = this.activeSessions.get(sessionId);
-        if (userAccount != null) {
-            userAccount.setLastSeen(OtherUtils.getTimestamp());
-            userRepository.save(userAccount);
-        }
+        //        if (userAccount != null) {
+//            userAccount.setLastSeen(OtherUtils.getTimestamp());
+//            userRepository.save(userAccount);
+//        }
 
 //        return userRepository.findById(1L).get();
-        return userAccount;
+        if (activeSessions.containsKey(sessionId)) {
+            return userRepository.getById(this.activeSessions.get(sessionId));
+        }else {
+            return null;
+        }
     }
 
     public String getSessionId(UserAccount userAccount) {
-        for (Map.Entry<String, UserAccount> entry : this.activeSessions.entrySet()) {
-            if (entry.getValue().equals(userAccount))
-                return entry.getKey();
+        for (String s : activeSessions.keySet()) {
+            if (activeSessions.get(s) == userAccount.getId()) {
+                return s;
+            }
         }
         return null;
     }
 
-    public void forceLogin(String sessionId, long id) {
-        activeSessions.put(sessionId, userRepository.getById(id));
+    public void forceLogin(String sessionId, Long id) {
+        activeSessions.put(sessionId, id);
     }
 
     public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption) {

@@ -75,7 +75,7 @@ public class StorageService {
 
         credential.setId(credentialsRepository.getNextVal());
         user.addCredential(credential);
-        userAccountRepository.saveAndFlush(user);
+        userAccountRepository.save(user);
 
         return new DefaultReturnable(HttpStatus.CREATED, "Entry was successfully created.").addData("entry", credential);
 
@@ -91,9 +91,12 @@ public class StorageService {
 
         for (LoginCredential loginCredential : loginCredentials) {
             if (loginCredential.getId().toString().equals(id)) {
+
+
+//                credentialsRepository.deleteLoginCredentialById(Long.valueOf(id));
                 loginCredentials.remove(loginCredential);
-                credentialsRepository.deleteLoginCredentialById(Long.valueOf(id));
-                userAccountRepository.saveAndFlush(user);
+                userAccountRepository.save(user);
+
 
 
                 return new DefaultReturnable(HttpStatus.OK, "Entry with id " + id + " successfully deleted.");

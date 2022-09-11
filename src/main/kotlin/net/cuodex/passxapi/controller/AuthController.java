@@ -8,6 +8,7 @@ import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +22,6 @@ public class AuthController {
 
     @Autowired
     private AuthenticationService authenticationService;
-
 
     @PostMapping("/login")
     public ResponseEntity<DefaultReturnable> authenticateUser(@Valid @RequestBody LoginDto loginDto){

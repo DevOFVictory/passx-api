@@ -1,6 +1,9 @@
 package net.cuodex.passxapi;
 
+import lombok.Getter;
 import net.cuodex.passxapi.service.AuthenticationService;
+import net.cuodex.passxapi.utils.AESObject;
+import net.cuodex.passxapi.utils.UmlautHelper;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
@@ -9,29 +12,46 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 public class PassxApiApplication {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(PassxApiApplication.class);
 
+	@Value("${net.cuodex.passx.encryption.privateKey}")
+	private String privateKey;
+
+	@Getter
+	private static AESObject aesObject;
+
 	@Autowired
 	private AuthenticationService authenticationManager;
+
 
 	public static void main(String[] args) {
 
 		SpringApplication.run(PassxApiApplication.class, args);
 
-
 		LOGGER.info("JSON rest API successfully started.");
 	}
+
+	@PostConstruct
+	private void postConstruct() {
+		UmlautHelper.init();
+		aesObject = new AESObject(privateKey);
+	}
+
 
 	@Bean
 	public ServletWebServerFactory servletContainer() {

@@ -3,6 +3,8 @@ package net.cuodex.passxapi.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -22,8 +24,9 @@ public class LoginCredential {
     @Getter @Setter
     private String title, url, description, username, email, password;
 
-    @ManyToOne()
-    @JoinColumn(name = "user_account_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "user_account_id", referencedColumnName = "id", nullable = false)
     @JsonIgnore
     @Getter @Setter
     private UserAccount userAccount;
