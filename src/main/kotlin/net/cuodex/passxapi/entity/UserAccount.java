@@ -1,6 +1,7 @@
 package net.cuodex.passxapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -15,6 +16,7 @@ import java.util.Set;
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"username"})
 })
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class UserAccount {
 
     @Id
@@ -35,6 +37,8 @@ public class UserAccount {
     private String lastSeen;
     @Getter @Setter
     private Boolean serverSideEncryption;
+    @Getter @Setter
+    private String ipAddress;
 
 
     @JsonIgnore

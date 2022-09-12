@@ -24,7 +24,7 @@ public class LoginCredential {
     @Getter @Setter
     private String title, url, description, username, email, password;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "user_account_id", referencedColumnName = "id", nullable = false)
     @JsonIgnore

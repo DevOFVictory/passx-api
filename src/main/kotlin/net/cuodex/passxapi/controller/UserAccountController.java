@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/account")
 public class UserAccountController {
 
@@ -22,10 +23,11 @@ public class UserAccountController {
 
 
     @DeleteMapping("")
-    public ResponseEntity<DefaultReturnable> deleteUser(@RequestHeader(value = "Authorization") String sessionId, @RequestBody DeleteAccountDto deleteAccDto){
+    public ResponseEntity<DefaultReturnable> deleteAccount(@RequestHeader(value = "Authorization") String sessionId) {
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
-        return authenticationService.deleteUser(sessionId, deleteAccDto.getPasswordTest()).getResponseEntity();
+        return userAccountService.deleteUser(sessionId).getResponseEntity();
     }
+
 
     @GetMapping("/information")
     public ResponseEntity<DefaultReturnable> getUserInformation(@RequestHeader(value = "Authorization") String sessionId){
@@ -45,4 +47,5 @@ public class UserAccountController {
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
         return userAccountService.changePassword(sessionId, changePasswordDto.getPasswordTest(), changePasswordDto.getNewPasswordTest(), changePasswordDto.getEntries()).getResponseEntity();
     }
+
 }

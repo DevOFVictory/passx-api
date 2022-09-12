@@ -26,7 +26,7 @@ public class AuthenticationService {
         this.activeSessions = new HashMap<>();
     }
 
-    public String authenticate(String username, String password) {
+    public String authenticate(String username, String password, String ipAddress) {
 
         if (!userRepository.existsByUsername(username))
             return "ERROR: Username does not exists.";
@@ -35,6 +35,7 @@ public class AuthenticationService {
         UserAccount userAccount = userRepository.findByUsername(username).get();
 
         userAccount.setLastSeen(OtherUtils.getTimestamp());
+        userAccount.setIpAddress(ipAddress);
         userRepository.save(userAccount);
 //
         String encryptionTest = userAccount.getPasswordTest();
@@ -100,7 +101,7 @@ public class AuthenticationService {
         activeSessions.put(sessionId, id);
     }
 
-    public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption) {
+    public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption, String ipAddress) {
 
         if (!(username.matches("^[a-zA-Z0-9_]*$") && username.length() >= 3 && username.length() <= 16))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid username.");
@@ -123,28 +124,12 @@ public class AuthenticationService {
         user.setCreatedAt(OtherUtils.getTimestamp());
         user.setLastSeen(OtherUtils.getTimestamp());
         user.setServerSideEncryption(serverSideEncryption);
+        user.setIpAddress(ipAddress);
 
         userRepository.save(user);
         PassxApiApplication.LOGGER.info("User '" + username + "' successfully created.");
 
         return new DefaultReturnable(HttpStatus.CREATED, "User successfully created.").addData("user", user);
-    }
-
-    public DefaultReturnable deleteUser(String sessionId, String passwordTest) {
-        UserAccount user = this.getUser(sessionId);
-
-        if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
-
-        if (!user.getPasswordTest().equals(passwordTest))
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session. ('"+user.getUsername()+"')");
-
-        this.invalidateSession(sessionId);
-        userRepository.delete(user);
-
-        System.gc();
-
-        return new DefaultReturnable("Account was successfully deleted.");
     }
 
     public DefaultReturnable checkSession(String sessionId) {

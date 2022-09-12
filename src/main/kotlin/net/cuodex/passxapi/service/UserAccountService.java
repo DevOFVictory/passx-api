@@ -42,7 +42,7 @@ public class UserAccountService {
             return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
 
         if (!user.getPasswordTest().equals(passwordTest))
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session ('"+user.getUsername()+"')");
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session ('" + user.getUsername() + "')");
 
 
         boolean usernameChanged = data.containsKey("username");
@@ -54,7 +54,7 @@ public class UserAccountService {
             if (!OtherUtils.isUsernameValid(username))
                 return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid username. (See docs)");
 
-            if (userRepository.existsByUsername(username)){
+            if (userRepository.existsByUsername(username)) {
                 return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Username already taken.");
             }
 
@@ -72,7 +72,7 @@ public class UserAccountService {
 
 
         userRepository.save(user);
-        PassxApiApplication.LOGGER.info("User with id '"+user.getId()+"' successfully updated information.");
+        PassxApiApplication.LOGGER.info("User with id '" + user.getId() + "' successfully updated information.");
         return new DefaultReturnable("Successfully updated user information.").addData("user", user);
 
     }
@@ -83,7 +83,7 @@ public class UserAccountService {
             return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
 
         if (!user.getPasswordTest().equals(passwordTest))
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session. ('"+user.getUsername()+"')");
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session. ('" + user.getUsername() + "')");
 
         if (newPasswordTest.equals(passwordTest)) {
             return new DefaultReturnable(HttpStatus.NOT_MODIFIED, "Your new password must not be equal to your old password");
@@ -97,7 +97,7 @@ public class UserAccountService {
 
         if (error) {
             PassxApiApplication.LOGGER.warn(entries.toString());
-            return  new DefaultReturnable(HttpStatus.BAD_REQUEST, "Something went wrong with the entries data");
+            return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Something went wrong with the entries data");
         }
 
         user.setPasswordTest(newPasswordTest);
@@ -105,5 +105,19 @@ public class UserAccountService {
 
         PassxApiApplication.LOGGER.info("User '" + user.getUsername() + "' successfully changed master password.");
         return new DefaultReturnable("The master password was successfully changed and all entries were updated.");
+    }
+
+    public DefaultReturnable deleteUser(String sessionId) {
+        UserAccount user = authenticationService.getUser(sessionId);
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+
+        authenticationService.invalidateSession(sessionId);
+        userRepository.delete(user);
+
+        System.gc();
+
+        return new DefaultReturnable("Account was successfully deleted.");
     }
 }
