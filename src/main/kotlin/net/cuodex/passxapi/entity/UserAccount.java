@@ -65,4 +65,5 @@ public class UserAccount {
     public int hashCode() {
         return getClass().hashCode();
     }
+
 }

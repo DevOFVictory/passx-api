@@ -1,7 +1,14 @@
 package net.cuodex.passxapi.utils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class OtherUtils {
 
@@ -15,5 +22,11 @@ public class OtherUtils {
 
     public static boolean isUsernameValid(String username) {
         return username.matches("^[a-zA-Z0-9_]*$") && username.length() >= 3 && username.length() <= 16;
+    }
+
+    public static List<String> readFirst(final Path path, final int numLines) throws IOException, IOException {
+        try (final Stream<String> lines = Files.lines(path)) {
+            return lines.limit(numLines).collect(toList());
+        }
     }
 }

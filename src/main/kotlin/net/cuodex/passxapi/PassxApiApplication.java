@@ -3,11 +3,15 @@ package net.cuodex.passxapi;
 import lombok.Getter;
 import net.cuodex.passxapi.service.AuthenticationService;
 import net.cuodex.passxapi.utils.AESObject;
+import net.cuodex.passxapi.utils.OtherUtils;
 import net.cuodex.passxapi.utils.UmlautHelper;
+import net.cuodex.passxapi.utils.Variables;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
+import org.aspectj.weaver.ast.Var;
+import org.hibernate.dialect.function.VarArgsSQLFunction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,21 +27,25 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.util.Objects;
 
 @SpringBootApplication
 public class PassxApiApplication {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(PassxApiApplication.class);
 
-	@Value("${net.cuodex.passx.encryption.privateKey}")
-	private String privateKey;
+	@Autowired @Getter
+	private Environment env;
 
 	@Getter
 	private static AESObject aesObject;
 
 	@Autowired
 	private AuthenticationService authenticationManager;
-
 
 	public static void main(String[] args) {
 
@@ -47,15 +55,25 @@ public class PassxApiApplication {
 	}
 
 	@PostConstruct
-	private void postConstruct() {
+	private void postConstruct() throws IOException {
 		UmlautHelper.init();
-		aesObject = new AESObject(privateKey);
+		aesObject = new AESObject(env.getProperty("net.cuodex.passx.security.encryptionKey"));
+		Variables.API_NAME = env.getProperty("net.cuodex.passx.api.name");
+		Variables.API_AUTHOR = env.getProperty("net.cuodex.passx.api.author");
+		Variables.API_CONTEXT_PATH = env.getProperty("server.servlet.context-path");
+		Variables.API_VERSION = env.getProperty("net.cuodex.passx.api.version");
+		Variables.API_HOST = InetAddress.getLocalHost().getHostName();
+
+		Variables.MAX_COMMON_PASSWORDS = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.maxCommonPasswords")));
+
+		Variables.COMMON_PASSWORDS = OtherUtils.readFirst(Path.of("src/main/resources/common-passwords.txt"), Variables.MAX_COMMON_PASSWORDS);
+
 	}
 
 
 	@Bean
 	public ServletWebServerFactory servletContainer() {
-		// Enable SSL Trafic
+		// Enable SSL traffic
 		TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
 			@Override
 			protected void postProcessContext(Context context) {

@@ -43,8 +43,10 @@ public class AuthenticationService {
 //
 //        String decrypted = aesManager.decrypt(encryptionTest);
 
-        if (!password.equals(encryptionTest))
+
+        if (!password.equals(encryptionTest)) {
             return "ERROR: Password is invalid.";
+        }
 
         String sessionId = "";
         do {
