@@ -1,18 +1,18 @@
 package net.cuodex.passxapi.service;
 
+import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.CredentialsRepository;
 import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
+import net.cuodex.passxapi.utils.OtherUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ldap.embedded.EmbeddedLdapProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Service
 public class StorageService {
@@ -35,6 +35,13 @@ public class StorageService {
 
         Set<LoginCredential> loginCredentials = user.getLoginCredentials();
 
+        if (user.getServerSideEncryption())
+            // Decrypt all credentials
+            loginCredentials.forEach(loginCredential -> {
+                loginCredentials.remove(loginCredential);
+                loginCredentials.add(OtherUtils.decryptCredential(loginCredential));
+            });
+
         return new DefaultReturnable(HttpStatus.OK, "Account entries retrieved successfully.").addData("amount", loginCredentials.size()).addData("entries", loginCredentials);
     }
 
@@ -49,7 +56,8 @@ public class StorageService {
 
         for (LoginCredential loginCredential : loginCredentials) {
             if (loginCredential.getId().toString().equals(id)) {
-                return new DefaultReturnable(HttpStatus.OK, "Account entry with id " + id + " successfully retrieved.").addData("entry", loginCredential);
+                    return new DefaultReturnable(HttpStatus.OK, "Account entry with id " + id + " successfully retrieved.")
+                            .addData("entry", user.getServerSideEncryption() ? OtherUtils.decryptCredential(loginCredential) : loginCredential);
             }
         }
         return new DefaultReturnable(HttpStatus.NOT_FOUND, "Account entry with id " + id + " was not found on this account.");
@@ -74,7 +82,7 @@ public class StorageService {
         credential.setPassword(password);
 
         credential.setId(credentialsRepository.getNextVal());
-        user.addCredential(credential);
+        user.addCredential(user.getServerSideEncryption() ? OtherUtils.encryptCredential(credential) : credential);
         userAccountRepository.save(user);
 
         return new DefaultReturnable(HttpStatus.CREATED, "Entry was successfully created.").addData("entry", credential);
@@ -92,12 +100,9 @@ public class StorageService {
         for (LoginCredential loginCredential : loginCredentials) {
             if (loginCredential.getId().toString().equals(id)) {
 
-
 //                credentialsRepository.deleteLoginCredentialById(Long.valueOf(id));
                 loginCredentials.remove(loginCredential);
                 userAccountRepository.save(user);
-
-
 
                 return new DefaultReturnable(HttpStatus.OK, "Entry with id " + id + " successfully deleted.");
             }
@@ -122,10 +127,11 @@ public class StorageService {
                 loginCredential.setUsername(entryUsername);
                 loginCredential.setPassword(entryPassword);
 
-                credentialsRepository.saveAndFlush(loginCredential);
+                credentialsRepository.saveAndFlush(user.getServerSideEncryption() ? OtherUtils.encryptCredential(loginCredential) : loginCredential);
                 userAccountRepository.saveAndFlush(user);
 
-                return new DefaultReturnable(HttpStatus.OK, "Entry with id " + id + " successfully updated.").addData("entry", loginCredential);
+                return new DefaultReturnable(HttpStatus.OK, "Entry with id " + id + " successfully updated.")
+                        .addData("entry", user.getServerSideEncryption() ? OtherUtils.decryptCredential(loginCredential) : loginCredential);
             }
         }
         return new DefaultReturnable(HttpStatus.NOT_FOUND, "Entry with id " + id + " was not found on this account.");

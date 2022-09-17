@@ -22,7 +22,12 @@ public class LoginCredential {
 
     @Column(length = 60)
     @Getter @Setter
-    private String title, url, description, username, email, password;
+    private String title, url, username, email, password;
+
+    @Column(length = 120)
+    @Getter @Setter
+    private String description;
+
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @NotFound(action = NotFoundAction.IGNORE)

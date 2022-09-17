@@ -10,13 +10,10 @@ import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
-import org.aspectj.weaver.ast.Var;
-import org.hibernate.dialect.function.VarArgsSQLFunction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -29,7 +26,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -66,7 +62,7 @@ public class PassxApiApplication {
 
 		Variables.MAX_COMMON_PASSWORDS = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.maxCommonPasswords")));
 
-		Variables.COMMON_PASSWORDS = OtherUtils.readFirst(Path.of("src/main/resources/common-passwords.txt"), Variables.MAX_COMMON_PASSWORDS);
+		Variables.COMMON_PASSWORDS = OtherUtils.readFirst(Path.of("common-passwords.txt"), Variables.MAX_COMMON_PASSWORDS);
 
 	}
 

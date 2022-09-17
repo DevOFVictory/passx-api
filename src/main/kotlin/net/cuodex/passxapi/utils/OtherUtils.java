@@ -1,5 +1,8 @@
 package net.cuodex.passxapi.utils;
 
+import net.cuodex.passxapi.PassxApiApplication;
+import net.cuodex.passxapi.entity.LoginCredential;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,5 +31,34 @@ public class OtherUtils {
         try (final Stream<String> lines = Files.lines(path)) {
             return lines.limit(numLines).collect(toList());
         }
+    }
+
+    public static LoginCredential encryptCredential(LoginCredential decryptedCredential) {
+        LoginCredential encryptedCredential = new LoginCredential();
+        encryptedCredential.setId(decryptedCredential.getId());
+        encryptedCredential.setUserAccount(decryptedCredential.getUserAccount());
+        encryptedCredential.setTitle(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getTitle()));
+        encryptedCredential.setUsername(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getUsername()));
+        encryptedCredential.setEmail(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getEmail()));
+        encryptedCredential.setPassword(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getPassword()));
+        encryptedCredential.setUrl(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getUrl()));
+        encryptedCredential.setDescription(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getDescription()));
+
+        return encryptedCredential;
+    }
+
+    public static LoginCredential decryptCredential(LoginCredential encryptedCredential) {
+        LoginCredential decryptedCredential = new LoginCredential();
+
+        decryptedCredential.setId(encryptedCredential.getId());
+        decryptedCredential.setUserAccount(encryptedCredential.getUserAccount());
+        decryptedCredential.setTitle(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getTitle()));
+        decryptedCredential.setUsername(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getUsername()));
+        decryptedCredential.setEmail(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getEmail()));
+        decryptedCredential.setPassword(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getPassword()));
+        decryptedCredential.setUrl(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getUrl()));
+        decryptedCredential.setDescription(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getDescription()));
+
+        return decryptedCredential;
     }
 }
