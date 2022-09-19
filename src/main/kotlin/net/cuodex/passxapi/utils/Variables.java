@@ -8,5 +8,7 @@ public class Variables {
 
     public static int MAX_COMMON_PASSWORDS;
 
+    public static int ENDPOINT_REQUEST_DELAY;
+
     public static List<String> COMMON_PASSWORDS;
 }

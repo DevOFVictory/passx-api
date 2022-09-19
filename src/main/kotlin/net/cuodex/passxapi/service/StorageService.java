@@ -1,6 +1,5 @@
 package net.cuodex.passxapi.service;
 
-import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.CredentialsRepository;

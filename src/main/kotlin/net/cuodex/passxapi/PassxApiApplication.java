@@ -64,6 +64,8 @@ public class PassxApiApplication {
 
 		Variables.COMMON_PASSWORDS = OtherUtils.readFirst(Path.of("common-passwords.txt"), Variables.MAX_COMMON_PASSWORDS);
 
+		Variables.ENDPOINT_REQUEST_DELAY = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.endpointPathRequestDelay")));
+
 	}
 
 
