@@ -26,11 +26,14 @@ public class StorageService {
     @Autowired
     private CredentialsRepository credentialsRepository;
 
-    public DefaultReturnable getEntries(String sessionId) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable getEntries(String sessionId, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated yet. Confirm your id using 2FA.");
 
         Set<LoginCredential> loginCredentials = user.getLoginCredentials();
 
@@ -45,11 +48,14 @@ public class StorageService {
     }
 
 
-    public DefaultReturnable getEntryById(String sessionId, String id) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable getEntryById(String sessionId, String id, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         Set<LoginCredential> loginCredentials = user.getLoginCredentials();
 
@@ -62,11 +68,14 @@ public class StorageService {
         return new DefaultReturnable(HttpStatus.NOT_FOUND, "Account entry with id " + id + " was not found on this account.");
     }
 
-    public DefaultReturnable addEntry(String sessionId, String serviceName, String url, String description, String email, String username, String password) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable addEntry(String sessionId, String serviceName, String url, String description, String email, String username, String password, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         if (serviceName == null || url == null || description == null || email == null || username == null || password == null) {
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Not all parameters present. (Read docs)");
@@ -88,11 +97,14 @@ public class StorageService {
 
     }
 
-    public DefaultReturnable deleteEntry (String sessionId, String id) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable deleteEntry (String sessionId, String id, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         Set<LoginCredential> loginCredentials = user.getLoginCredentials();
 
@@ -109,11 +121,14 @@ public class StorageService {
         return new DefaultReturnable(HttpStatus.NOT_FOUND, "Entry with id " + id + " was not found on this account.");
     }
 
-    public DefaultReturnable updateEntry(String sessionId, String id, String entryService, String entryUrl, String entryDescription, String entryEmail, String entryUsername, String entryPassword) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable updateEntry(String sessionId, String id, String entryService, String entryUrl, String entryDescription, String entryEmail, String entryUsername, String entryPassword, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         Set<LoginCredential> loginCredentials = user.getLoginCredentials();
 

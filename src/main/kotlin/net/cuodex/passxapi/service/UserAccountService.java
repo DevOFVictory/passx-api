@@ -16,7 +16,6 @@ import java.util.Map;
 @Service
 public class UserAccountService {
 
-
     @Autowired
     private AuthenticationService authenticationService;
 
@@ -26,20 +25,25 @@ public class UserAccountService {
     @Autowired
     private UserAccountRepository userRepository;
 
-    public DefaultReturnable getInformation(String sessionId) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable getInformation(String sessionId, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
 
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         return new DefaultReturnable("Successfully retrieved user information.").addData("user", user);
     }
 
-    public DefaultReturnable updateInformation(String sessionId, String passwordTest, Map<String, String> data) {
+    public DefaultReturnable updateInformation(String sessionId, String passwordTest, Map<String, String> data, String ipAddress) {
 
-        UserAccount user = authenticationService.getUser(sessionId);
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         if (!user.getPasswordTest().equals(passwordTest))
             return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session ('" + user.getUsername() + "')");
@@ -77,10 +81,13 @@ public class UserAccountService {
 
     }
 
-    public DefaultReturnable changePassword(String sessionId, String passwordTest, String newPasswordTest, List<Map<String, String>> entries) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable changePassword(String sessionId, String passwordTest, String newPasswordTest, List<Map<String, String>> entries, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         if (!user.getPasswordTest().equals(passwordTest))
             return new DefaultReturnable(HttpStatus.FORBIDDEN, "Invalid password test for corresponding user session. ('" + user.getUsername() + "')");
@@ -92,7 +99,7 @@ public class UserAccountService {
         boolean error = false;
         for (Map<String, String> stringEntry : entries) {
             error = storageService.updateEntry(sessionId, stringEntry.get("id"), stringEntry.get("title"), stringEntry.get("url"),
-                    stringEntry.get("description"), stringEntry.get("username"), stringEntry.get("email"), stringEntry.get("password")).getResponseEntity().getStatusCodeValue() != 200;
+                    stringEntry.get("description"), stringEntry.get("username"), stringEntry.get("email"), stringEntry.get("password"), ipAddress).getResponseEntity().getStatusCodeValue() != 200;
         }
 
         if (error) {
@@ -107,11 +114,14 @@ public class UserAccountService {
         return new DefaultReturnable("The master password was successfully changed and all entries were updated.");
     }
 
-    public DefaultReturnable deleteUser(String sessionId) {
-        UserAccount user = authenticationService.getUser(sessionId);
+    public DefaultReturnable deleteUser(String sessionId, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Session id is invalid or expired.");
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         authenticationService.invalidateSession(sessionId);
         userRepository.delete(user);

@@ -33,6 +33,7 @@ public class GeneralController {
                 .addData("host", Variables.API_HOST)
                 .addData("contextPath", Variables.API_CONTEXT_PATH)
                 .addData("uptime", uptime)
+                .addData("sessionTimeout", Variables.SESSION_TIMEOUT)
                 .getResponseEntity();
     }
 

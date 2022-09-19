@@ -6,6 +6,7 @@ import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.service.AuthenticationService;
 import net.cuodex.passxapi.service.RequestService;
+import net.cuodex.passxapi.utils.PassxUserSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,15 +30,15 @@ public class AuthController {
     @CrossOrigin("*")
     @PostMapping("/login")
     public ResponseEntity<DefaultReturnable> authenticateUser(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request) {
-        String sessionId = authenticationService.authenticate(
+        PassxUserSession session = authenticationService.authenticate(
                 loginDto.getUsername(), loginDto.getPasswordTest(), requestService.getClientIp(request));
 
-        if (sessionId.startsWith("ERROR: "))
+        if (session == null)
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Username or password is invalid").getResponseEntity();
 
         DefaultReturnable returnable = new DefaultReturnable(HttpStatus.OK, "Successfully logged in.");
-        UserAccount user = authenticationService.getUser(sessionId);
-        returnable.addData("sessionId", sessionId);
+        UserAccount user = authenticationService.getUser(session.getSessionId(), requestService.getClientIp(request));
+        returnable.addData("sessionId", session.getSessionId());
         returnable.addData("username", user.getUsername());
         returnable.addData("email", user.getEmail());
 
@@ -52,9 +53,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<DefaultReturnable> logoutUser(@RequestHeader(value = "Authorization") String sessionId){
+    public ResponseEntity<DefaultReturnable> logoutUser(@RequestHeader(value = "Authorization") String sessionId, HttpServletRequest request){
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
-        UserAccount user = authenticationService.getUser(sessionId);
+        UserAccount user = authenticationService.getUser(sessionId, requestService.getClientIp(request));
         if (user == null)
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.").getResponseEntity();
 
@@ -63,9 +64,9 @@ public class AuthController {
     }
 
     @PostMapping("/check-session")
-    public ResponseEntity<DefaultReturnable> checkSession(@RequestHeader(value = "Authorization") String sessionId) {
+    public ResponseEntity<DefaultReturnable> checkSession(@RequestHeader(value = "Authorization") String sessionId, HttpServletRequest request) {
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
-        return authenticationService.checkSession(sessionId).getResponseEntity();
+        return authenticationService.checkSession(sessionId, requestService.getClientIp(request)).getResponseEntity();
     }
 
 

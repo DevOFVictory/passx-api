@@ -66,6 +66,7 @@ public class PassxApiApplication {
 
 		Variables.ENDPOINT_REQUEST_DELAY = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.endpointPathRequestDelay")));
 
+		Variables.SESSION_TIMEOUT = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.sessionTimeout")));
 	}
 
 

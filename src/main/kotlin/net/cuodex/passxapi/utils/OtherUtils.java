@@ -61,4 +61,8 @@ public class OtherUtils {
 
         return decryptedCredential;
     }
+
+    public static List<String> getSessionIdList(List<PassxUserSession> activeSessions) {
+        return activeSessions.stream().map(PassxUserSession::getSessionId).toList();
+    }
 }

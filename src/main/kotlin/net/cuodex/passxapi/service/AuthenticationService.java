@@ -5,31 +5,30 @@ import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.utils.OtherUtils;
+import net.cuodex.passxapi.utils.PassxUserSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationService {
 
-    private final Map<String, Long> activeSessions;
+    private final List<PassxUserSession> activeSessions;
 
     @Autowired
     private UserAccountRepository userRepository;
 
     public AuthenticationService() {
-        this.activeSessions = new HashMap<>();
+        this.activeSessions = new ArrayList<>();
     }
 
-    public String authenticate(String username, String password, String ipAddress) {
+    public PassxUserSession authenticate(String username, String password, String ipAddress) {
 
         if (!userRepository.existsByUsername(username))
-            return "ERROR: Username does not exists.";
+            return null;
 
 
         UserAccount userAccount = userRepository.findByUsername(username).get();
@@ -39,68 +38,66 @@ public class AuthenticationService {
         userRepository.save(userAccount);
 //
         String encryptionTest = userAccount.getPasswordTest();
-//        System.out.println(encryptionTest);
-//
-//        String decrypted = aesManager.decrypt(encryptionTest);
-
 
         if (!password.equals(encryptionTest)) {
-            return "ERROR: Password is invalid.";
+            return null;
         }
 
-        String sessionId = "";
+        // Generate session which is not in use
+        PassxUserSession session;
+        List<String> activeSessionIds = OtherUtils.getSessionIdList(activeSessions);
         do {
-            sessionId = UUID.randomUUID().toString();
-        }while (activeSessions.containsKey(sessionId));
+            session = new PassxUserSession(userAccount.getId(), ipAddress);
+        }while (activeSessionIds.contains(session.getSessionId()));
 
-        // deactivate old sessions
-        for (String s : activeSessions.keySet()) {
-            if (activeSessions.get(s) == userAccount.getId()) {
-                activeSessions.remove(s);
-            }
-        }
+        // Deactivate old sessions
+        activeSessions.removeIf(activeSession -> activeSession.getAccountId() == userAccount.getId());
 
-        this.activeSessions.put(sessionId, userAccount.getId());
+        // Add new session
+        this.activeSessions.add(session);
 
-
-        PassxApiApplication.LOGGER.info("User '" + username + "' successfully authenticated. ("+sessionId+")");
-        return sessionId;
+        PassxApiApplication.LOGGER.info("User '" + username + "' successfully authenticated. ("+session.getSessionId()+")");
+        return session;
 
     }
 
-    public boolean isSessionValid(String sessionId) {
-        return this.activeSessions.containsKey(sessionId);
+    public boolean isSessionValid(String sessionId, String ipAddress) {
+        if (OtherUtils.getSessionIdList(activeSessions).contains(sessionId)) {
+            if (System.currentTimeMillis() - getSession(sessionId).getCreatedAt() > 10000L) {
+                invalidateSession(sessionId);
+                return false;
+            }
+
+            return getSession(sessionId).getIpAddress().equals(ipAddress);
+        }
+        return false;
     }
 
     public void invalidateSession(String sessionId) {
-        this.activeSessions.remove(sessionId);
+        activeSessions.removeIf(activeSession -> activeSession.getSessionId().equals(sessionId));
     }
 
-    public UserAccount getUser(String sessionId) {
+    public UserAccount getUser(String sessionId, String ipAddress) {
         //        if (userAccount != null) {
 //            userAccount.setLastSeen(OtherUtils.getTimestamp());
 //            userRepository.save(userAccount);
 //        }
 
 //        return userRepository.findById(1L).get();
-        if (activeSessions.containsKey(sessionId)) {
-            return userRepository.getById(this.activeSessions.get(sessionId));
+        if (isSessionValid(sessionId, ipAddress)) {
+            return userRepository.getById(getSession(sessionId).getAccountId());
         }else {
             return null;
         }
     }
 
     public String getSessionId(UserAccount userAccount) {
-        for (String s : activeSessions.keySet()) {
-            if (activeSessions.get(s) == userAccount.getId()) {
-                return s;
+        for (PassxUserSession session : activeSessions) {
+            if (session.getAccountId() == userAccount.getId()) {
+                return session.getSessionId();
             }
         }
         return null;
-    }
-
-    public void forceLogin(String sessionId, Long id) {
-        activeSessions.put(sessionId, id);
     }
 
     public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption, String ipAddress) {
@@ -134,11 +131,21 @@ public class AuthenticationService {
         return new DefaultReturnable(HttpStatus.CREATED, "User successfully created.").addData("user", user);
     }
 
-    public DefaultReturnable checkSession(String sessionId) {
-        if (isSessionValid(sessionId)) {
-            return new DefaultReturnable(HttpStatus.OK, "Session id is valid.");
-        }else {
+    public DefaultReturnable checkSession(String sessionId, String ipAddress) {
+        if (!isSessionValid(sessionId, ipAddress))
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
-        }
+
+        PassxUserSession session = getSession(sessionId);
+
+        if (!session.isActivated())
+            return new DefaultReturnable(HttpStatus.ACCEPTED, "Session id is valid but not activated yet.")
+                    .addData("session", session);
+
+        return new DefaultReturnable(HttpStatus.OK, "Session id is valid.")
+                .addData("session", session);
+    }
+
+    public PassxUserSession getSession(String sessionId) {
+        return activeSessions.stream().filter(activeSession -> activeSession.getSessionId().equals(sessionId)).toList().get(0);
     }
 }
