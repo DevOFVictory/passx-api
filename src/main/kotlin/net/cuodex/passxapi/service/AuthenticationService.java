@@ -6,6 +6,7 @@ import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.utils.OtherUtils;
 import net.cuodex.passxapi.utils.PassxUserSession;
+import net.cuodex.passxapi.utils.Variables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,7 @@ public class AuthenticationService {
 
     public boolean isSessionValid(String sessionId, String ipAddress) {
         if (OtherUtils.getSessionIdList(activeSessions).contains(sessionId)) {
-            if (System.currentTimeMillis() - getSession(sessionId).getCreatedAt() > 10000L) {
+            if (System.currentTimeMillis() - getSession(sessionId).getLastUsed() > Variables.SESSION_TIMEOUT) {
                 invalidateSession(sessionId);
                 return false;
             }
@@ -85,6 +86,7 @@ public class AuthenticationService {
 
 //        return userRepository.findById(1L).get();
         if (isSessionValid(sessionId, ipAddress)) {
+            getSession(sessionId).setLastUsed(System.currentTimeMillis());
             return userRepository.getById(getSession(sessionId).getAccountId());
         }else {
             return null;

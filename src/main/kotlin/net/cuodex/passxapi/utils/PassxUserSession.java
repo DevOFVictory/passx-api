@@ -13,12 +13,15 @@ public class PassxUserSession {
     @JsonIgnore
     private String ipAddress;
     private Long createdAt;
+    private Long lastUsed;
     private boolean activated;
 
     public PassxUserSession(long accountId, String ipAddress) {
         sessionId = UUID.randomUUID().toString();
         activated = true;
-        createdAt = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
+        createdAt = time;
+        lastUsed = time;
         this.accountId = accountId;
         this.ipAddress = ipAddress;
     }
