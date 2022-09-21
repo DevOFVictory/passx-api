@@ -1,8 +1,15 @@
 package net.cuodex.passxapi.utils;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,5 +71,16 @@ public class OtherUtils {
 
     public static List<String> getSessionIdList(List<PassxUserSession> activeSessions) {
         return activeSessions.stream().map(PassxUserSession::getSessionId).toList();
+    }
+
+    public static byte[] getQRCodeImage(String text, int width, int height) throws WriterException, IOException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+
+        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+        MatrixToImageConfig con = new MatrixToImageConfig( 0xFF000000 , 0xFFFFFFFF ) ;
+
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream,con);
+        return pngOutputStream.toByteArray();
     }
 }
