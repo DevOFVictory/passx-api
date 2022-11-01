@@ -17,24 +17,13 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public String getClientIp(HttpServletRequest request) {
-        String ipAddress = request.getHeader("X-Forwarded-For");
-        if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("Proxy-Client-IP");
-        }
-
-        if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("WL-Proxy-Client-IP");
-        }
-
-        if(StringUtils.isEmpty(ipAddress) || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getRemoteAddr();
-            if(LOCALHOST_IPV4.equals(ipAddress) || LOCALHOST_IPV6.equals(ipAddress)) {
-                try {
-                    InetAddress inetAddress = InetAddress.getLocalHost();
-                    ipAddress = inetAddress.getHostAddress();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
+        String ipAddress = request.getRemoteAddr();
+        if(LOCALHOST_IPV4.equals(ipAddress) || LOCALHOST_IPV6.equals(ipAddress)) {
+            try {
+                InetAddress inetAddress = InetAddress.getLocalHost();
+                ipAddress = inetAddress.getHostAddress();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
             }
         }
 

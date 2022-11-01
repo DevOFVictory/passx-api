@@ -58,7 +58,7 @@ public class PassxApiApplication {
 		Variables.API_AUTHOR = env.getProperty("net.cuodex.passx.api.author");
 		Variables.API_CONTEXT_PATH = env.getProperty("server.servlet.context-path");
 		Variables.API_VERSION = env.getProperty("net.cuodex.passx.api.version");
-		Variables.API_HOST = InetAddress.getLocalHost().getHostName();
+		Variables.API_HOST = env.getProperty("net.cuodex.passx.api.host");
 
 		Variables.MAX_COMMON_PASSWORDS = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.maxCommonPasswords")));
 
