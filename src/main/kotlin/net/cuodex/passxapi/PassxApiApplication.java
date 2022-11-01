@@ -61,11 +61,8 @@ public class PassxApiApplication {
 		Variables.API_HOST = env.getProperty("net.cuodex.passx.api.host");
 
 		Variables.MAX_COMMON_PASSWORDS = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.maxCommonPasswords")));
-
 		Variables.COMMON_PASSWORDS = OtherUtils.readFirst(Path.of("common-passwords.txt"), Variables.MAX_COMMON_PASSWORDS);
-
 		Variables.ENDPOINT_REQUEST_DELAY = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.endpointPathRequestDelay")));
-
 		Variables.SESSION_TIMEOUT = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.sessionTimeout")));
 	}
 
