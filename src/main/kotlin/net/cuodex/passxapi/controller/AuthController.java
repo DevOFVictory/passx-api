@@ -1,5 +1,6 @@
 package net.cuodex.passxapi.controller;
 
+import net.cuodex.passxapi.dto.Confirm2FaCodeDto;
 import net.cuodex.passxapi.dto.LoginDto;
 import net.cuodex.passxapi.dto.RegisterDto;
 import net.cuodex.passxapi.entity.UserAccount;
@@ -27,7 +28,6 @@ public class AuthController {
     private RequestService requestService;
 
 
-    @CrossOrigin("*")
     @PostMapping("/login")
     public ResponseEntity<DefaultReturnable> authenticateUser(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request) {
         PassxUserSession session = authenticationService.authenticate(
@@ -43,6 +43,12 @@ public class AuthController {
         returnable.addData("email", user.getEmail());
 
         return returnable.getResponseEntity();
+    }
+
+    @PostMapping("/confirm-identity")
+    public ResponseEntity<DefaultReturnable> confirmIdentity(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody Confirm2FaCodeDto confirm2FaCodeDto, HttpServletRequest request) {
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return authenticationService.confirmIdentity(sessionId, requestService.getClientIp(request), confirm2FaCodeDto.getOtp()).getResponseEntity();
     }
 
 

@@ -1,7 +1,9 @@
 package net.cuodex.passxapi.service;
 
+import dev.samstevens.totp.code.CodeVerifier;
+import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
 import net.cuodex.passxapi.PassxApiApplication;
-import net.cuodex.passxapi.entity.LoginCredential;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.UserAccountRepository;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +20,20 @@ import java.util.Map;
 public class UserAccountService {
 
     @Autowired
+    private SecretGenerator secretGenerator;
+
+
+    @Autowired
     private AuthenticationService authenticationService;
 
     @Autowired
     private StorageService storageService;
+
+    @Autowired
+    private CodeVerifier verifier;
+
+    @Autowired
+    private RecoveryCodeGenerator recoveryCodeGenerator;
 
     @Autowired
     private UserAccountRepository userRepository;
@@ -129,5 +142,78 @@ public class UserAccountService {
         System.gc();
 
         return new DefaultReturnable("Account was successfully deleted.");
+    }
+
+    public DefaultReturnable enable2Fa(String sessionId, String prefix, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (user.isTwoFactorEnabled())
+            return new DefaultReturnable(HttpStatus.CONFLICT, "2FA is already activated for this account.");
+
+        String secret = secretGenerator.generate();
+        user.setTotpSecret(secret);
+        userRepository.save(user);
+        return new DefaultReturnable(HttpStatus.CREATED, "2FA secret successfully generated. Please finish the process by confirming your identity.")
+                .addData("secret", secret)
+                .addData("qrCode", prefix + secret);
+    }
+
+    public DefaultReturnable confirm2Fa(String sessionId, String otp, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (user.getTotpSecret() == null || user.getTotpSecret().isEmpty())
+            return new DefaultReturnable(HttpStatus.CONFLICT, "2FA is not enabled for this account.");
+
+        if (user.isTwoFactorEnabled())
+            return new DefaultReturnable(HttpStatus.CONFLICT, "2FA is already activated for this account.");
+
+        if (!verifier.isValidCode(user.getTotpSecret(), otp))
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "2FA OTP-Code is invalid.");
+
+        user.setTwoFactorEnabled(true);
+        userRepository.save(user);
+        return new DefaultReturnable(HttpStatus.OK, "2FA was fully enabled and is now active.");
+    }
+
+    public DefaultReturnable getBackupCodes(String sessionId, String ipAddress) {
+        UserAccount user = authenticationService.getUser(sessionId, ipAddress);
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
+
+        if (!user.isTwoFactorEnabled())
+            return new DefaultReturnable(HttpStatus.CONFLICT, "2FA is not enabled for this account.");
+
+        String[] codes = recoveryCodeGenerator.generateCodes(8);
+        return new DefaultReturnable(HttpStatus.OK, "Here are your 8 recovery codes.")
+                .addData("codes", Arrays.asList(codes));
+
+    }
+
+    public DefaultReturnable disable2Fa(String sessionId, String clientIp) {
+        UserAccount user = authenticationService.getUser(sessionId, clientIp);
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!user.isTwoFactorEnabled() && ((user.getTotpSecret() == null || user.getTotpSecret().isEmpty())))
+            return new DefaultReturnable(HttpStatus.CONFLICT, "2FA is not activated or enabled for this account.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
+
+        user.setTotpSecret(null);
+        user.setTwoFactorEnabled(false);
+        userRepository.save(user);
+        return new DefaultReturnable(HttpStatus.OK, "2FA was successfully disabled.");
     }
 }

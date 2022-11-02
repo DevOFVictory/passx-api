@@ -1,5 +1,6 @@
 package net.cuodex.passxapi.service;
 
+import dev.samstevens.totp.code.CodeVerifier;
 import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.UserAccount;
 import net.cuodex.passxapi.repository.UserAccountRepository;
@@ -9,10 +10,10 @@ import net.cuodex.passxapi.utils.PassxUserSession;
 import net.cuodex.passxapi.utils.Variables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationService {
@@ -21,6 +22,10 @@ public class AuthenticationService {
 
     @Autowired
     private UserAccountRepository userRepository;
+
+    @Autowired
+    private CodeVerifier verifier;
+
 
     public AuthenticationService() {
         this.activeSessions = new ArrayList<>();
@@ -57,10 +62,13 @@ public class AuthenticationService {
         // Add new session
         this.activeSessions.add(session);
 
+        if (userAccount.isTwoFactorEnabled())
+            session.setActivated(false);
+
         PassxApiApplication.LOGGER.info("User '" + username + "' successfully authenticated. ("+session.getSessionId()+")");
         return session;
-
     }
+
 
     public boolean isSessionValid(String sessionId, String ipAddress) {
         if (OtherUtils.getSessionIdList(activeSessions).contains(sessionId)) {
@@ -149,5 +157,23 @@ public class AuthenticationService {
 
     public PassxUserSession getSession(String sessionId) {
         return activeSessions.stream().filter(activeSession -> activeSession.getSessionId().equals(sessionId)).toList().get(0);
+    }
+
+    public DefaultReturnable confirmIdentity(String sessionId, String clientIp, String otp) {
+        UserAccount user = getUser(sessionId, clientIp);
+
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!user.isTwoFactorEnabled() && ((user.getTotpSecret() == null || user.getTotpSecret().isEmpty())))
+            return new DefaultReturnable(HttpStatus.CONFLICT, "2FA is not activated or enabled for this account.");
+
+        if (!verifier.isValidCode(user.getTotpSecret(), otp))
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "2FA OTP-Code is invalid.");
+
+        getSession(sessionId).setActivated(true);
+        return new DefaultReturnable(HttpStatus.OK, "This session was successfully activated using 2FA.");
+
+
     }
 }

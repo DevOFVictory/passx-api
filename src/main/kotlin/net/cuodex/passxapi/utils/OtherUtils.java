@@ -8,11 +8,14 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;

@@ -79,7 +79,7 @@ public class PassxApiApplication {
 				SecurityConstraint securityConstraint = new SecurityConstraint();
 				securityConstraint.setUserConstraint("CONFIDENTIAL");
 				SecurityCollection collection = new SecurityCollection();
-				collection.addPattern("/passx/v2/*");
+				collection.addPattern("/passx/v3/*");
 				securityConstraint.addCollection(collection);
 				context.addConstraint(securityConstraint);
 			}

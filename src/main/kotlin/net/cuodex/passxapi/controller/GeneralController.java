@@ -1,28 +1,33 @@
 package net.cuodex.passxapi.controller;
 
 import com.google.zxing.WriterException;
-import net.cuodex.passxapi.PassxApiApplication;
-import net.cuodex.passxapi.dto.RegisterDto;
+import dev.samstevens.totp.exceptions.QrGenerationException;
+import dev.samstevens.totp.qr.QrData;
+import dev.samstevens.totp.qr.QrDataFactory;
+import dev.samstevens.totp.qr.QrGenerator;
 import net.cuodex.passxapi.returnables.DefaultReturnable;
 import net.cuodex.passxapi.utils.OtherUtils;
 import net.cuodex.passxapi.utils.Variables;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.util.Base64;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/general")
 public class GeneralController {
+
+    @Autowired
+    private QrDataFactory qrDataFactory;
+
+    @Autowired
+    private QrGenerator qrGenerator;
 
 
     @GetMapping("/status")
@@ -54,10 +59,14 @@ public class GeneralController {
     }
 
     @GetMapping(value= "/2fa-code", produces = MediaType.IMAGE_PNG_VALUE)
-    public @ResponseBody byte[] get2faCode(@RequestParam("secret") String secret) throws IOException, WriterException {
+    public @ResponseBody byte[] get2faCode(@RequestParam("secret") String secret) throws IOException, WriterException, QrGenerationException {
 
-        return OtherUtils.getQRCodeImage("otpauth://totp/PassX%20Account?secret="+secret+"&issuer=CuodeX.net&algorithm=SHA512&digits=6&period=30",250,250);
-
+        QrData data = qrDataFactory.newBuilder()
+                .label("PassX Account")
+                .secret(secret)
+                .issuer("passx.cuodex.net (Cuodex)")
+                .build();
+        return qrGenerator.generate(data);
     }
 
 }

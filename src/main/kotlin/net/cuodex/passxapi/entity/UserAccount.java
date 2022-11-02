@@ -28,8 +28,7 @@ public class UserAccount {
     @Getter @Setter
     private String email;
 
-    @JsonIgnore
-    @Getter @Setter
+    @Getter @Setter @JsonIgnore
     private String passwordTest;
     @Getter @Setter
     private String createdAt;
@@ -39,7 +38,10 @@ public class UserAccount {
     private Boolean serverSideEncryption;
     @Getter @Setter
     private String ipAddress;
-
+    @Getter @Setter @JsonIgnore
+    private String totpSecret;
+    @Getter @Setter
+    private boolean twoFactorEnabled;
 
     @JsonIgnore
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
