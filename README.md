@@ -5,7 +5,7 @@
     <img src="https://passx.cuodex.net/assets/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">PassX - API</h3>
+<h3 align="center">PassX - API v3.1</h3>
 
   <p align="center">
     A safe place for your passwords from everywhere
@@ -19,19 +19,32 @@
   </p>
 </div>
 
-# PassX API
+# PassX API 3
 The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.net)
+
+### Features
+- Server side encryption
+- Two-factor authentication via TOTP
+- Remember current IP address for further logins
+- Generate TOTP QR Codes
+- Check for most common passwords in common databases
+- Check current status and more information on the api
+- Built-in bruteforce protection via IP block
+- Detailed log for administrators to check uncommon behaviour
+- Security & privacy granded by FOSS and non profit project
+- Detailed exceptions and documentation
+
+
 
 ### Compile by source
 1. Clone the project `git clone https://github.com/DevOFVictory/PassX-API.git`
 2. Check out requirements below
-3. Build project with maven
+3. Build project with maven ``mvn package``
 4. Start api `java -jar target.jar`
 
 ### Requirements
 - Setup working Java 17 JDK environment
 - Setup MySQL database server on Port 3006 and db-name `passx` (or change it in `src/main/ressources/application.properties`)
-- Create MySQL User Default: `passx:passx` with basic structure and data permission for database above
 
 ### Links
 - Webclient: https://github.com/CuodeX/PassX-Webclient
@@ -39,18 +52,6 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 - Hosted service: https://passx.cuodex.net
 - More project information: https://cuodex.net/passx
 
-### To Do's
-- [x] Implement user authentication
-- [x] Delete Account Endpoint
-- [x] Correct Status Code
-- [x] Encryption
-- [x] Correct status code
-- [x] Session System
-- [x] Correct type check + null
-- [x] Credential add/remove/edit
-- [x] Add more debug messages
-- [ ] CLI + Command System
-- [ ] Docker Compose support
 
 ### Documentation
 https://documenter.getpostman.com/view/18057854/UVyxQZPu
