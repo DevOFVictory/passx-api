@@ -42,6 +42,8 @@ public class UserAccount {
     private String totpSecret;
     @Getter @Setter
     private boolean twoFactorEnabled;
+    @Getter @Setter
+    private boolean rememberMe;
 
     @JsonIgnore
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)

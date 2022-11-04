@@ -39,9 +39,6 @@ public class AuthenticationService {
 
         UserAccount userAccount = userRepository.findByUsername(username).get();
 
-        userAccount.setLastSeen(OtherUtils.getTimestamp());
-        userAccount.setIpAddress(ipAddress);
-        userRepository.save(userAccount);
 //
         String encryptionTest = userAccount.getPasswordTest();
 
@@ -62,8 +59,19 @@ public class AuthenticationService {
         // Add new session
         this.activeSessions.add(session);
 
-        if (userAccount.isTwoFactorEnabled())
-            session.setActivated(false);
+        if (userAccount.isTwoFactorEnabled()) {
+            if (userAccount.isRememberMe()) {
+                session.setActivated(ipAddress.equals(userAccount.getIpAddress()));
+            }else {
+                session.setActivated(false);
+            }
+        }else {
+            session.setActivated(true);
+        }
+
+        userAccount.setLastSeen(OtherUtils.getTimestamp());
+        userAccount.setIpAddress(ipAddress);
+        userRepository.save(userAccount);
 
         PassxApiApplication.LOGGER.info("User '" + username + "' successfully authenticated. ("+session.getSessionId()+")");
         return session;
@@ -116,7 +124,7 @@ public class AuthenticationService {
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid username.");
 
 
-        if (!OtherUtils.isEmailValid(email))
+        if ((email != null && !email.isEmpty()) &&!OtherUtils.isEmailValid(email))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid email address.");
 
 
@@ -159,7 +167,7 @@ public class AuthenticationService {
         return activeSessions.stream().filter(activeSession -> activeSession.getSessionId().equals(sessionId)).toList().get(0);
     }
 
-    public DefaultReturnable confirmIdentity(String sessionId, String clientIp, String otp) {
+    public DefaultReturnable confirmIdentity(String sessionId, String otp, boolean rememberMe, String clientIp) {
         UserAccount user = getUser(sessionId, clientIp);
 
         if (user == null)
@@ -172,6 +180,8 @@ public class AuthenticationService {
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "2FA OTP-Code is invalid.");
 
         getSession(sessionId).setActivated(true);
+        user.setRememberMe(rememberMe);
+        userRepository.save(user);
         return new DefaultReturnable(HttpStatus.OK, "This session was successfully activated using 2FA.");
 
 

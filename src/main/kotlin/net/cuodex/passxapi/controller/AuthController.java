@@ -48,7 +48,7 @@ public class AuthController {
     @PostMapping("/confirm-identity")
     public ResponseEntity<DefaultReturnable> confirmIdentity(@RequestHeader(value = "Authorization") String sessionId, @Valid @RequestBody Confirm2FaCodeDto confirm2FaCodeDto, HttpServletRequest request) {
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
-        return authenticationService.confirmIdentity(sessionId, requestService.getClientIp(request), confirm2FaCodeDto.getOtp()).getResponseEntity();
+        return authenticationService.confirmIdentity(sessionId, confirm2FaCodeDto.getOtp(), confirm2FaCodeDto.isRememberMe(), requestService.getClientIp(request)).getResponseEntity();
     }
 
 

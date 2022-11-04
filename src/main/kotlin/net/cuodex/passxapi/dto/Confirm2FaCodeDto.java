@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class Confirm2FaCodeDto {
     @NotNull
     private String otp;
+    private boolean rememberMe;
 
     @JsonCreator
     public Confirm2FaCodeDto(@NotNull @JsonProperty("otp") String otp) {

@@ -161,7 +161,7 @@ public class UserAccountService {
                 .addData("qrCode", prefix + secret);
     }
 
-    public DefaultReturnable confirm2Fa(String sessionId, String otp, String ipAddress) {
+    public DefaultReturnable confirm2Fa(String sessionId, String otp, boolean rememberMe, String ipAddress) {
         UserAccount user = authenticationService.getUser(sessionId, ipAddress);
 
         if (user == null)
@@ -177,6 +177,7 @@ public class UserAccountService {
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "2FA OTP-Code is invalid.");
 
         user.setTwoFactorEnabled(true);
+        user.setRememberMe(rememberMe);
         userRepository.save(user);
         return new DefaultReturnable(HttpStatus.OK, "2FA was fully enabled and is now active.");
     }

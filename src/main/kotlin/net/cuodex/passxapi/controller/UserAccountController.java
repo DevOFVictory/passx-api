@@ -64,7 +64,7 @@ public class UserAccountController {
     @PostMapping("/2fa/confirm")
     public ResponseEntity<DefaultReturnable> getUserInformation(@RequestHeader(value = "Authorization") String sessionId,  @Valid @RequestBody Confirm2FaCodeDto confirm2FaCodeDto, HttpServletRequest request){
         sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
-        return userAccountService.confirm2Fa(sessionId, confirm2FaCodeDto.getOtp(), requestService.getClientIp(request)).getResponseEntity();
+        return userAccountService.confirm2Fa(sessionId, confirm2FaCodeDto.getOtp(), confirm2FaCodeDto.isRememberMe(), requestService.getClientIp(request)).getResponseEntity();
     }
 
     @GetMapping("2fa/backup-codes")
