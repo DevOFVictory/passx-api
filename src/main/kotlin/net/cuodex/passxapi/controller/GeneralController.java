@@ -44,6 +44,7 @@ public class GeneralController {
                 .addData("contextPath", Variables.API_CONTEXT_PATH)
                 .addData("uptime", uptime)
                 .addData("sessionTimeout", Variables.SESSION_TIMEOUT)
+                .addData("maxCommonPasswords", Variables.MAX_COMMON_PASSWORDS)
                 .getResponseEntity();
     }
 
