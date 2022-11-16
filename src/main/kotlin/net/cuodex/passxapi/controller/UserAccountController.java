@@ -79,4 +79,11 @@ public class UserAccountController {
         return userAccountService.disable2Fa(sessionId, requestService.getClientIp(request)).getResponseEntity();
     }
 
+    @GetMapping("2fa/status")
+    public ResponseEntity<DefaultReturnable> getStatus(@RequestHeader(value = "Authorization") String sessionId, HttpServletRequest request){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        String prefix = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +  Variables.API_CONTEXT_PATH + "general/2fa-code?secret=";
+        return userAccountService.getStatus(sessionId, prefix, requestService.getClientIp(request)).getResponseEntity();
+    }
+
 }

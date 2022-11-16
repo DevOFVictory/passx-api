@@ -1,15 +1,12 @@
-documentation.txt
-src/main/resources/application.properties
-src/main/resources/keystore.p12
-keystore.p12
-target/keystore.p12
+/src/main/resources/keystore.p12
 passx/keystore.p12
+out/artifacts/passx_api_jar/passx-api.jar
+src/main/resources/**
 
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+
 
 ### STS ###
 .apt_generated
@@ -38,3 +35,5 @@ build/
 
 ### VS Code ###
 .vscode/
+/keystore.p12
+/documentation.txt

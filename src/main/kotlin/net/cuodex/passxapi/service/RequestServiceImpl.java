@@ -17,8 +17,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public String getClientIp(HttpServletRequest request) {
-//        String ipAddress = request.getHeader("X-Forwarded-For") == null ? request.getRemoteAddr() : request.getHeader("X-Forwarded-For");
-        String ipAddress = request.getRemoteAddr();
+        String ipAddress = request.getHeader("X-Forwarded-For") == null ? request.getRemoteAddr() : request.getHeader("X-Forwarded-For");
+//        String ipAddress = request.getRemoteAddr();
         if(LOCALHOST_IPV4.equals(ipAddress) || LOCALHOST_IPV6.equals(ipAddress)) {
             try {
                 InetAddress inetAddress = InetAddress.getLocalHost();

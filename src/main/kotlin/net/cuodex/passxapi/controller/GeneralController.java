@@ -60,7 +60,7 @@ public class GeneralController {
     }
 
     @GetMapping(value= "/2fa-code", produces = MediaType.IMAGE_PNG_VALUE)
-    public @ResponseBody byte[] get2faCode(@RequestParam("secret") String secret) throws IOException, WriterException, QrGenerationException {
+    public @ResponseBody byte[] get2faCode(@RequestParam("secret") String secret) throws QrGenerationException {
 
         QrData data = qrDataFactory.newBuilder()
                 .label("PassX Account")
