@@ -224,8 +224,6 @@ public class UserAccountService {
         if (user == null)
             return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
 
-        if (!authenticationService.getSession(sessionId).isActivated())
-            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
 
         if (user.getTotpSecret() == null || user.getTotpSecret().isEmpty()) {
             return new DefaultReturnable(HttpStatus.OK, "Successfully retrieved 2fa status.")
@@ -238,11 +236,15 @@ public class UserAccountService {
                     .addData("status", "enabled")
                     .addData("message", "Two factor authentication via TOTP is enabled but not activated due missing confirmation. (/2fa/confirm)");
 
-        return new DefaultReturnable(HttpStatus.OK, "Successfully retrieved 2fa status.")
-                .addData("status", "activated")
-                .addData("message", "Two factor authentication via TOTP fully activated and confirmed on this account.")
-                .addData("secret", user.getTotpSecret())
-                .addData("qrCode", prefix + user.getTotpSecret());
 
+
+        DefaultReturnable returnable = new DefaultReturnable(HttpStatus.OK, "Successfully retrieved 2fa status.")
+                .addData("status", "activated")
+                .addData("message", "Two factor authentication via TOTP fully activated and confirmed on this account.");
+
+        if (authenticationService.getSession(sessionId).isActivated())
+            returnable.addData("secret", user.getTotpSecret()).addData("qrCode", prefix + user.getTotpSecret());
+
+        return returnable;
     }
 }
