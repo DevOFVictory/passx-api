@@ -247,4 +247,68 @@ public class UserAccountService {
 
         return returnable;
     }
+
+    public DefaultReturnable getSettings(String sessionId, String clientIp) {
+
+        UserAccount user = authenticationService.getUser(sessionId, clientIp);
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
+
+        return new DefaultReturnable("Successfully retrieved user settings.").addData("settings", user.getSettings());
+
+    }
+
+    public DefaultReturnable setSetting(String sessionId, String name, String value, String clientIp) {
+
+        UserAccount user = authenticationService.getUser(sessionId, clientIp);
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
+
+        if (!name.matches("^[a-z]+$"))
+            return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid setting name. Only lowercase english letters are allowed.");
+
+        user.setSetting(name, value);
+        userRepository.save(user);
+        return new DefaultReturnable("Successfully set user setting.").addData("settings", user.getSettings());
+    }
+
+    public DefaultReturnable deleteSetting(String sessionId, String name, String clientIp) {
+
+        UserAccount user = authenticationService.getUser(sessionId, clientIp);
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
+
+        if (user.getSetting(name) == null)
+            return new DefaultReturnable(HttpStatus.NOT_FOUND, "User setting is not set.");
+
+        user.removeSetting(name);
+        userRepository.save(user);
+        return new DefaultReturnable("Successfully deleted user setting.").addData("settings", user.getSettings());
+    }
+
+    public DefaultReturnable getSetting(String sessionId, String name, String clientIp) {
+
+        UserAccount user = authenticationService.getUser(sessionId, clientIp);
+        if (user == null)
+            return new DefaultReturnable(HttpStatus.UNAUTHORIZED, "Session id is invalid or expired.");
+
+        if (!authenticationService.getSession(sessionId).isActivated())
+            return new DefaultReturnable(HttpStatus.FORBIDDEN, "Your session is not activated. Confirm your id using 2FA.");
+
+        if (user.getSetting(name) == null)
+            return new DefaultReturnable(HttpStatus.NOT_FOUND, "User setting is not set.");
+
+        return new DefaultReturnable("Successfully deleted user setting.")
+                .addData("name", name)
+                .addData("value", user.getSetting(name));
+    }
 }
