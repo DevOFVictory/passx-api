@@ -31,8 +31,11 @@ The JSON REST API for the PassX password manager by [CuodeX.net](https://cuodex.
 - Check current status and more information on the api
 - Built-in bruteforce protection via IP block
 - Detailed log for administrators to check uncommon behaviour
-- Security & privacy granded by FOSS and non profit project
+- Security & privacy granted by FOSS and non-profit project
 - Detailed exceptions and documentation
+- Easy to use and understand
+- Easy to integrate into your own projects
+- Custom settings for each user (can be used for custom frontend appearance)
 
 
 
