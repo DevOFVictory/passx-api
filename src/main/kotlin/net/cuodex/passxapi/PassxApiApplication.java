@@ -25,7 +25,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -48,6 +47,8 @@ public class PassxApiApplication {
 		SpringApplication.run(PassxApiApplication.class, args);
 
 		LOGGER.info("JSON rest API successfully started.");
+
+		LOGGER.info(Variables.HUTCHA_ENABLED ? "Hutcha enabled." : "Hutcha disabled.");
 	}
 
 	@PostConstruct
@@ -63,7 +64,9 @@ public class PassxApiApplication {
 		Variables.MAX_COMMON_PASSWORDS = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.maxCommonPasswords")));
 		Variables.COMMON_PASSWORDS = OtherUtils.readFirst(Path.of("common-passwords.txt"), Variables.MAX_COMMON_PASSWORDS);
 		Variables.ENDPOINT_REQUEST_DELAY = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.endpointPathRequestDelay")));
-		Variables.SESSION_TIMEOUT = Integer.parseInt(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.sessionTimeout")));
+
+		Variables.HUTCHA_ENABLED = Boolean.parseBoolean(Objects.requireNonNull(env.getProperty("net.cuodex.passx.security.hutcha.enabled")));
+		Variables.HUTCHA_API_HOST = env.getProperty("net.cuodex.passx.security.hutcha.apiHost");
 	}
 
 

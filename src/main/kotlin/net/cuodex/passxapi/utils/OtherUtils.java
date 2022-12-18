@@ -10,9 +10,12 @@ import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
@@ -86,4 +89,54 @@ public class OtherUtils {
         MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream,con);
         return pngOutputStream.toByteArray();
     }
-}
+
+    public static String checkHutchaToken(String hutchaToken, String ipAddress) {
+        try {
+            // Create the JSON object to send in the body of the request
+            JSONObject json = new JSONObject();
+            json.put("token", hutchaToken);
+            json.put("ipAddress", ipAddress);
+
+            // Create the POST request
+            URL url = new URL(Variables.HUTCHA_API_HOST + "check-token");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            // Write the JSON body to the request
+            OutputStream os = connection.getOutputStream();
+            os.write(json.toString().getBytes());
+            os.flush();
+
+
+            // Get the response code
+            int responseCode = connection.getResponseCode();
+
+
+            // Close the connection
+
+            // Read the response
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getErrorStream() == null ? connection.getInputStream() : connection.getErrorStream()));
+            String output;
+            StringBuilder response = new StringBuilder();
+            while ((output = br.readLine()) != null) {
+                response.append(output);
+            }
+
+            br.close();
+            os.close();
+            connection.disconnect();
+
+            // Parse json response
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            String message = jsonResponse.getString("message");
+            return responseCode == 200 ? "Correnctly solved HUTCHA." : "[Error] " + message;
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return "[Error] Unknown error while checking HUTCHA token. Please try again later.";
+        }
+    }
+
+
+    }
