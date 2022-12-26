@@ -1,13 +1,1 @@
-{
-  "properties": [
-    {
-      "name": "net.cuodex.passx.encryption.privateKey",
-      "type": "java.lang.String",
-      "description": "Description for net.cuodex.passx.encryption.privateKey."
-    },
-    {
-      "name": "net.cuodex.passx.security.hutchaEnabled",
-      "type": "java.lang.Boolean",
-      "description": "Should HUTCHAs be used for registration?"
-    }
-  ] }
+{}

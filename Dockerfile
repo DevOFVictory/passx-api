@@ -1,7 +1,10 @@
-#define base docker image
 FROM openjdk:17
 LABEL maintainer="DevOFVictory"
-ADD target/passx-api-0.0.1-SNAPSHOT.jar passx-server.jar
-ADD target/passx-ssl.pkcs12 passx-ssl.pkcs12
+WORKDIR /app
 EXPOSE 8443
-ENTRYPOINT ["java", "-jar", "passx-server.jar"]
+
+COPY target/*.jar passx-server.jar
+COPY target/keystore.p12 keystore.p12
+COPY common-passwords.txt common-passwords.txt
+
+ENTRYPOINT ["java", "-jar", "passx-server.jar", "-Dcom.sun.security.enableAIAcaIssuers=true"]

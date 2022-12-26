@@ -1,28 +1,26 @@
 version: '3.8'
-volumes:
-  database:
+
 services:
   passx-spring:
     container_name: passx-spring
-    image: passx-spring
-    restart: on-failure
+    restart: always
+    image:  passx-spring:latest
     depends_on:
       - passx-mysql
     build: .
     ports:
       - "8443:8443"
     environment:
-      MYSQL_HOST: passx-mysql
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-      MYSQL_PORT: 3306
+      SPRING_DATASOURCE_URL: jdbc:mysql://passx-mysql:3306/passx?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
   passx-mysql:
+    platform: linux/x86_64
     container_name: passx-mysql
-    image: mysql
-    volumes:
-      -  database:/var/lib/mysql
+    image: mysql:5.7
+    restart: always
     ports:
       - "3307:3306"
     environment:
       MYSQL_DATABASE: passx
+      MYSQL_USER: passx
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: passx
