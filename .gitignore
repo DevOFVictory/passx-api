@@ -35,5 +35,4 @@ build/
 
 ### VS Code ###
 .vscode/
-/keystore.p12
 /documentation.txt

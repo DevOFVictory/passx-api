@@ -120,7 +120,7 @@ public class AuthenticationService {
 
     public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption, final String hutchaToken, String ipAddress) {
         if (Variables.HUTCHA_ENABLED) {
-            String message = OtherUtils.checkHutchaToken(hutchaToken, ipAddress);
+            String message = OtherUtils.checkHutchaToken2(hutchaToken, ipAddress);
             if (message.startsWith("[Error] ")) {
                 return new DefaultReturnable(HttpStatus.FORBIDDEN, message);
             }

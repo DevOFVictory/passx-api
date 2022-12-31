@@ -8,11 +8,20 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
-import org.apache.commons.codec.binary.Base32;
-import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.http.ParseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -90,6 +99,37 @@ public class OtherUtils {
         return pngOutputStream.toByteArray();
     }
 
+    public static String checkHutchaToken2(String hutchaToken, String ipAddress) {
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+
+            HttpPost httpPost = new HttpPost(Variables.HUTCHA_API_HOST + "check-token");
+            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setHeader("Accept", "application/json");
+
+            JSONObject json = new JSONObject();
+            json.put("token", hutchaToken);
+            json.put("ipAddress", ipAddress);
+
+            StringEntity entity = new StringEntity(json.toString());
+            httpPost.setEntity(entity);
+
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            int responseCode = response.getStatusLine().getStatusCode();
+
+            String responseString = new String(response.getEntity().getContent().readAllBytes());
+
+            JSONObject jsonResponse = new JSONObject(responseString);
+            String message = jsonResponse.getString("message");
+            return responseCode == 200 ? "Correctly solved HUTCHA." : "[Error] " + message;
+
+        } catch (IOException | JSONException | ParseException e) {
+            e.printStackTrace();
+            return "[Error] Unknown error while checking HUTCHA token. Please try again later.";
+        }
+    }
+
+
     public static String checkHutchaToken(String hutchaToken, String ipAddress) {
         try {
             // Create the JSON object to send in the body of the request
@@ -97,12 +137,21 @@ public class OtherUtils {
             json.put("token", hutchaToken);
             json.put("ipAddress", ipAddress);
 
-            // Create the POST request
+            // Disable SSL validation
+            HostnameVerifier ValidHost = new HostnameVerifier() {
+                @Override
+                public boolean verify(String s, SSLSession sslSession) {
+                    return true;
+                }
+            };
+            HttpsURLConnection.setDefaultHostnameVerifier(ValidHost);
+
             URL url = new URL(Variables.HUTCHA_API_HOST + "check-token");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.setConnectTimeout(7000);
 
             // Write the JSON body to the request
             OutputStream os = connection.getOutputStream();
