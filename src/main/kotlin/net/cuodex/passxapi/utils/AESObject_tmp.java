@@ -3,6 +3,7 @@ package net.cuodex.passxapi.utils;
 import net.cuodex.passxapi.PassxApiApplication;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
@@ -11,8 +12,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
-
-public class AESObject {
+public class AESObject_tmp {
 
     public static final String ENCRYPTION_TEST = "encryptionTest", SALT = "WyuZFx5zOy65AsZRGLJcn8OFuGq5LvMIWyuZFx5zOy65AsZRGLJcn8OFuGq5LvMI";
 
@@ -20,7 +20,7 @@ public class AESObject {
     private String key;
     private final String customSalt;
 
-    public AESObject(String key) {
+    public AESObject_tmp(String key) {
         try {
             this.cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -66,6 +66,8 @@ public class AESObject {
         String key = (this.key + customSalt).substring(0, 32), iv = key.substring(0, 16);
         try {
             byte[] encrypted = Base64.getDecoder().decode(str.getBytes());
+            System.out.println(Arrays.toString(encrypted));
+
 
             SecretKeySpec keyspec = new SecretKeySpec(key.getBytes(), "AES");
             IvParameterSpec ivspec = new IvParameterSpec(iv.getBytes());
@@ -74,11 +76,13 @@ public class AESObject {
 
             byte[] original = cipher.doFinal(encrypted);
             String originalString = new String(original);
+            System.out.println(originalString);
 
             return UmlautHelper.reverseUmlauts(originalString);
 
         } catch (Exception e) {
             PassxApiApplication.LOGGER.error("Error whiles decrypting: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

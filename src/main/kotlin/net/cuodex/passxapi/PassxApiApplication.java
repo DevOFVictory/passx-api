@@ -1,7 +1,7 @@
 package net.cuodex.passxapi;
 
 import lombok.Getter;
-import net.cuodex.passxapi.utils.AESObject;
+import net.cuodex.passxapi.utils.AESObject_tmp;
 import net.cuodex.passxapi.utils.OtherUtils;
 import net.cuodex.passxapi.utils.UmlautHelper;
 import net.cuodex.passxapi.utils.Variables;
@@ -29,8 +29,8 @@ public class PassxApiApplication {
 	@Autowired @Getter
 	private Environment env;
 
-	@Getter
-	private static AESObject aesObject;
+	// @Getter
+	// private static AESObject_tmp aesObject;
 
 	public static void main(String[] args) {
 
@@ -44,7 +44,7 @@ public class PassxApiApplication {
 	@PostConstruct
 	private void postConstruct() throws IOException {
 		UmlautHelper.init();
-		aesObject = new AESObject(env.getProperty("net.cuodex.passx.security.encryptionKey"));
+		Variables.ENCRYPTION_KEY = env.getProperty("net.cuodex.passx.security.encryptionKey");
 		Variables.API_NAME = env.getProperty("net.cuodex.passx.api.name");
 		Variables.API_AUTHOR = env.getProperty("net.cuodex.passx.api.author");
 		Variables.API_CONTEXT_PATH = env.getProperty("server.servlet.context-path");

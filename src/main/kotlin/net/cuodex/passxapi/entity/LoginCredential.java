@@ -20,11 +20,11 @@ public class LoginCredential {
     @Getter @Setter
     private Long id;
 
-    @Column(length = 60)
+    @Column()
     @Getter @Setter
     private String title, url, username, email, password;
 
-    @Column(length = 120)
+    @Column()
     @Getter @Setter
     private String description;
 

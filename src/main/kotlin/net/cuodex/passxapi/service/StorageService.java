@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -37,12 +39,15 @@ public class StorageService {
 
         Set<LoginCredential> loginCredentials = user.getLoginCredentials();
 
-        if (user.getServerSideEncryption())
+        if (user.getServerSideEncryption()) {
             // Decrypt all credentials
+            List<LoginCredential> decryptedCredentials = new ArrayList<>();
+
             loginCredentials.forEach(loginCredential -> {
-                loginCredentials.remove(loginCredential);
-                loginCredentials.add(OtherUtils.decryptCredential(loginCredential));
+                decryptedCredentials.add(OtherUtils.decryptCredential(loginCredential));
             });
+            return new DefaultReturnable(HttpStatus.OK, "Account entries retrieved successfully.").addData("amount", decryptedCredentials.size()).addData("entries", decryptedCredentials);
+        }
 
         return new DefaultReturnable(HttpStatus.OK, "Account entries retrieved successfully.").addData("amount", loginCredentials.size()).addData("entries", loginCredentials);
     }
@@ -79,6 +84,10 @@ public class StorageService {
 
         if (serviceName == null || url == null || description == null || email == null || username == null || password == null) {
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Not all parameters present. (Read docs)");
+        }
+
+        if (serviceName.length() > 150 || url.length() > 150 || description.length() > 150 || email.length() > 150 || username.length() > 150 || password.length() > 150) {
+            return new DefaultReturnable(HttpStatus.BAD_REQUEST, "One or more parameters more than 150 characters.");
         }
 
         LoginCredential credential = new LoginCredential();

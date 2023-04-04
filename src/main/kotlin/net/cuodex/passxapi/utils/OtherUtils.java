@@ -6,7 +6,6 @@ import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,7 +13,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -23,11 +21,9 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -59,12 +55,12 @@ public class OtherUtils {
         LoginCredential encryptedCredential = new LoginCredential();
         encryptedCredential.setId(decryptedCredential.getId());
         encryptedCredential.setUserAccount(decryptedCredential.getUserAccount());
-        encryptedCredential.setTitle(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getTitle()));
-        encryptedCredential.setUsername(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getUsername()));
-        encryptedCredential.setEmail(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getEmail()));
-        encryptedCredential.setPassword(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getPassword()));
-        encryptedCredential.setUrl(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getUrl()));
-        encryptedCredential.setDescription(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getDescription()));
+        encryptedCredential.setTitle(EncryptionUtils.encrypt(decryptedCredential.getTitle()));
+        encryptedCredential.setUsername(EncryptionUtils.encrypt(decryptedCredential.getUsername()));
+        encryptedCredential.setEmail(EncryptionUtils.encrypt(decryptedCredential.getEmail()));
+        encryptedCredential.setPassword(EncryptionUtils.encrypt(decryptedCredential.getPassword()));
+        encryptedCredential.setUrl(EncryptionUtils.encrypt(decryptedCredential.getUrl()));
+        encryptedCredential.setDescription(EncryptionUtils.encrypt(decryptedCredential.getDescription()));
 
         return encryptedCredential;
     }
@@ -74,12 +70,12 @@ public class OtherUtils {
 
         decryptedCredential.setId(encryptedCredential.getId());
         decryptedCredential.setUserAccount(encryptedCredential.getUserAccount());
-        decryptedCredential.setTitle(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getTitle()));
-        decryptedCredential.setUsername(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getUsername()));
-        decryptedCredential.setEmail(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getEmail()));
-        decryptedCredential.setPassword(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getPassword()));
-        decryptedCredential.setUrl(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getUrl()));
-        decryptedCredential.setDescription(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getDescription()));
+        decryptedCredential.setTitle(EncryptionUtils.decrypt(encryptedCredential.getTitle()));
+        decryptedCredential.setUsername(EncryptionUtils.decrypt(encryptedCredential.getUsername()));
+        decryptedCredential.setEmail(EncryptionUtils.decrypt(encryptedCredential.getEmail()));
+        decryptedCredential.setPassword(EncryptionUtils.decrypt(encryptedCredential.getPassword()));
+        decryptedCredential.setUrl(EncryptionUtils.decrypt(encryptedCredential.getUrl()));
+        decryptedCredential.setDescription(EncryptionUtils.decrypt(encryptedCredential.getDescription()));
 
         return decryptedCredential;
     }

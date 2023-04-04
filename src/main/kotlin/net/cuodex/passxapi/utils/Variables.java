@@ -14,4 +14,6 @@ public class Variables {
 
     public static boolean HUTCHA_ENABLED;
     public static String HUTCHA_API_HOST;
+
+    public static String ENCRYPTION_KEY;
 }
