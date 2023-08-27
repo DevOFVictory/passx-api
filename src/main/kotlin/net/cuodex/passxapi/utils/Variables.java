@@ -11,4 +11,9 @@ public class Variables {
     public static int ENDPOINT_REQUEST_DELAY, SESSION_TIMEOUT;
 
     public static List<String> COMMON_PASSWORDS;
+
+    public static boolean HUTCHA_ENABLED;
+    public static String HUTCHA_API_HOST;
+
+    public static String ENCRYPTION_KEY;
 }

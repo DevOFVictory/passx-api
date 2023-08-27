@@ -1,8 +1,1 @@
-{
-  "properties": [
-    {
-      "name": "net.cuodex.passx.encryption.privateKey",
-      "type": "java.lang.String",
-      "description": "Description for net.cuodex.passx.encryption.privateKey."
-    }
-  ] }
+{}

@@ -86,4 +86,28 @@ public class UserAccountController {
         return userAccountService.getStatus(sessionId, prefix, requestService.getClientIp(request)).getResponseEntity();
     }
 
+    @GetMapping("settings")
+    public ResponseEntity<DefaultReturnable> getSettings(@RequestHeader(value = "Authorization") String sessionId, HttpServletRequest request){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.getSettings(sessionId, requestService.getClientIp(request)).getResponseEntity();
+    }
+
+    @PostMapping("settings") @PutMapping("settings") @PatchMapping("settings")
+    public ResponseEntity<DefaultReturnable> setSetting(@RequestHeader(value = "Authorization") String sessionId, @RequestBody SetSettingDto setSettingDto, HttpServletRequest request){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.setSetting(sessionId, setSettingDto.getName(), setSettingDto.getValue(), requestService.getClientIp(request)).getResponseEntity();
+    }
+
+    @GetMapping("settings/{name}")
+    public ResponseEntity<DefaultReturnable> getSetting(@RequestHeader(value = "Authorization") String sessionId, @PathVariable String name, HttpServletRequest request){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.getSetting(sessionId, name, requestService.getClientIp(request)).getResponseEntity();
+    }
+
+    @DeleteMapping("settings/{name}")
+    public ResponseEntity<DefaultReturnable> deleteSetting(@RequestHeader(value = "Authorization") String sessionId, @PathVariable String name, HttpServletRequest request){
+        sessionId = sessionId.split(" ")[sessionId.split(" ").length - 1];
+        return userAccountService.deleteSetting(sessionId, name, requestService.getClientIp(request)).getResponseEntity();
+    }
+
 }

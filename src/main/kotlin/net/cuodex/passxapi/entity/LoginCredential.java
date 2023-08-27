@@ -2,7 +2,6 @@ package net.cuodex.passxapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -20,11 +19,11 @@ public class LoginCredential {
     @Getter @Setter
     private Long id;
 
-    @Column(length = 60)
+    @Column()
     @Getter @Setter
     private String title, url, username, email, password;
 
-    @Column(length = 120)
+    @Column()
     @Getter @Setter
     private String description;
 

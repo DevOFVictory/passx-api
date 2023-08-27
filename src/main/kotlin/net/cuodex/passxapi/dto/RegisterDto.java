@@ -14,4 +14,6 @@ public class RegisterDto {
     private String passwordTest;
     @NotNull
     private Boolean serverSideEncryption;
+    @NotNull
+    private String hutchaToken;
 }

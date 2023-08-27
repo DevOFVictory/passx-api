@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @RequiredArgsConstructor
@@ -45,6 +44,14 @@ public class UserAccount {
     @Getter @Setter
     private boolean rememberMe;
 
+    @Getter
+    @ElementCollection
+    @MapKeyColumn(name="value")
+    @Column(name="setting_name")
+    @CollectionTable(name="user_settings", joinColumns=@JoinColumn(name="user_id"))
+    private Map<String, String> settings = new HashMap<String, String>();
+
+
     @JsonIgnore
     @OneToMany(mappedBy = "userAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @Getter @Setter
@@ -54,6 +61,20 @@ public class UserAccount {
         loginCredential.setUserAccount(this);
         loginCredentials.add(loginCredential);
     }
+
+    public String getSetting(String key) {
+        return settings.get(key);
+    }
+
+    public void removeSetting(String key)
+    {
+        settings.remove(key);
+    }
+
+    public void setSetting(String key, String value) {
+        settings.put(key, value);
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -54,7 +54,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<DefaultReturnable> registerUser(@Valid @RequestBody RegisterDto signUpDto, HttpServletRequest request){
-        return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail().toLowerCase(), signUpDto.getPasswordTest(), signUpDto.getServerSideEncryption(), requestService.getClientIp(request)).getResponseEntity();
+        return authenticationService.createUser(signUpDto.getUsername(), signUpDto.getEmail().toLowerCase(), signUpDto.getPasswordTest(), signUpDto.getServerSideEncryption(), signUpDto.getHutchaToken(), requestService.getClientIp(request)).getResponseEntity();
 
     }
 

@@ -45,6 +45,8 @@ public class GeneralController {
                 .addData("uptime", uptime)
                 .addData("sessionTimeout", Variables.SESSION_TIMEOUT)
                 .addData("maxCommonPasswords", Variables.MAX_COMMON_PASSWORDS)
+                .addData("requestDelay", Variables.ENDPOINT_REQUEST_DELAY)
+                .addData("hutchaEnabled", Variables.HUTCHA_ENABLED)
                 .getResponseEntity();
     }
 

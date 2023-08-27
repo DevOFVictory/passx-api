@@ -118,7 +118,13 @@ public class AuthenticationService {
         return null;
     }
 
-    public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption, String ipAddress) {
+    public DefaultReturnable createUser(final String username, final String email, final String passwordTest, final boolean serverSideEncryption, final String hutchaToken, String ipAddress) {
+        if (Variables.HUTCHA_ENABLED) {
+            String message = OtherUtils.checkHutchaToken2(hutchaToken, ipAddress);
+            if (message.startsWith("[Error] ")) {
+                return new DefaultReturnable(HttpStatus.FORBIDDEN, message);
+            }
+        }
 
         if (!(username.matches("^[a-zA-Z0-9_]*$") && username.length() >= 3 && username.length() <= 16))
             return new DefaultReturnable(HttpStatus.BAD_REQUEST, "Invalid username.");

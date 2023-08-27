@@ -6,16 +6,24 @@ import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import net.cuodex.passxapi.PassxApiApplication;
 import net.cuodex.passxapi.entity.LoginCredential;
-import org.apache.commons.codec.binary.Base32;
-import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.http.ParseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -47,12 +55,12 @@ public class OtherUtils {
         LoginCredential encryptedCredential = new LoginCredential();
         encryptedCredential.setId(decryptedCredential.getId());
         encryptedCredential.setUserAccount(decryptedCredential.getUserAccount());
-        encryptedCredential.setTitle(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getTitle()));
-        encryptedCredential.setUsername(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getUsername()));
-        encryptedCredential.setEmail(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getEmail()));
-        encryptedCredential.setPassword(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getPassword()));
-        encryptedCredential.setUrl(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getUrl()));
-        encryptedCredential.setDescription(PassxApiApplication.getAesObject().encrypt(decryptedCredential.getDescription()));
+        encryptedCredential.setTitle(EncryptionUtils.encrypt(decryptedCredential.getTitle()));
+        encryptedCredential.setUsername(EncryptionUtils.encrypt(decryptedCredential.getUsername()));
+        encryptedCredential.setEmail(EncryptionUtils.encrypt(decryptedCredential.getEmail()));
+        encryptedCredential.setPassword(EncryptionUtils.encrypt(decryptedCredential.getPassword()));
+        encryptedCredential.setUrl(EncryptionUtils.encrypt(decryptedCredential.getUrl()));
+        encryptedCredential.setDescription(EncryptionUtils.encrypt(decryptedCredential.getDescription()));
 
         return encryptedCredential;
     }
@@ -62,12 +70,12 @@ public class OtherUtils {
 
         decryptedCredential.setId(encryptedCredential.getId());
         decryptedCredential.setUserAccount(encryptedCredential.getUserAccount());
-        decryptedCredential.setTitle(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getTitle()));
-        decryptedCredential.setUsername(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getUsername()));
-        decryptedCredential.setEmail(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getEmail()));
-        decryptedCredential.setPassword(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getPassword()));
-        decryptedCredential.setUrl(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getUrl()));
-        decryptedCredential.setDescription(PassxApiApplication.getAesObject().decrypt(encryptedCredential.getDescription()));
+        decryptedCredential.setTitle(EncryptionUtils.decrypt(encryptedCredential.getTitle()));
+        decryptedCredential.setUsername(EncryptionUtils.decrypt(encryptedCredential.getUsername()));
+        decryptedCredential.setEmail(EncryptionUtils.decrypt(encryptedCredential.getEmail()));
+        decryptedCredential.setPassword(EncryptionUtils.decrypt(encryptedCredential.getPassword()));
+        decryptedCredential.setUrl(EncryptionUtils.decrypt(encryptedCredential.getUrl()));
+        decryptedCredential.setDescription(EncryptionUtils.decrypt(encryptedCredential.getDescription()));
 
         return decryptedCredential;
     }
@@ -86,4 +94,94 @@ public class OtherUtils {
         MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream,con);
         return pngOutputStream.toByteArray();
     }
-}
+
+    public static String checkHutchaToken2(String hutchaToken, String ipAddress) {
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+
+            HttpPost httpPost = new HttpPost(Variables.HUTCHA_API_HOST + "check-token");
+            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setHeader("Accept", "application/json");
+
+            JSONObject json = new JSONObject();
+            json.put("token", hutchaToken);
+            json.put("ipAddress", ipAddress);
+
+            StringEntity entity = new StringEntity(json.toString());
+            httpPost.setEntity(entity);
+
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            int responseCode = response.getStatusLine().getStatusCode();
+
+            String responseString = new String(response.getEntity().getContent().readAllBytes());
+
+            JSONObject jsonResponse = new JSONObject(responseString);
+            String message = jsonResponse.getString("message");
+            return responseCode == 200 ? "Correctly solved HUTCHA." : "[Error] " + message;
+
+        } catch (IOException | JSONException | ParseException e) {
+            e.printStackTrace();
+            return "[Error] Unknown error while checking HUTCHA token. Please try again later.";
+        }
+    }
+
+
+    public static String checkHutchaToken(String hutchaToken, String ipAddress) {
+        try {
+            // Create the JSON object to send in the body of the request
+            JSONObject json = new JSONObject();
+            json.put("token", hutchaToken);
+            json.put("ipAddress", ipAddress);
+
+            // Disable SSL validation
+            HostnameVerifier ValidHost = new HostnameVerifier() {
+                @Override
+                public boolean verify(String s, SSLSession sslSession) {
+                    return true;
+                }
+            };
+            HttpsURLConnection.setDefaultHostnameVerifier(ValidHost);
+
+            URL url = new URL(Variables.HUTCHA_API_HOST + "check-token");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setConnectTimeout(7000);
+
+            // Write the JSON body to the request
+            OutputStream os = connection.getOutputStream();
+            os.write(json.toString().getBytes());
+            os.flush();
+
+
+            // Get the response code
+            int responseCode = connection.getResponseCode();
+
+
+            // Close the connection
+
+            // Read the response
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getErrorStream() == null ? connection.getInputStream() : connection.getErrorStream()));
+            String output;
+            StringBuilder response = new StringBuilder();
+            while ((output = br.readLine()) != null) {
+                response.append(output);
+            }
+
+            br.close();
+            os.close();
+            connection.disconnect();
+
+            // Parse json response
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            String message = jsonResponse.getString("message");
+            return responseCode == 200 ? "Correnctly solved HUTCHA." : "[Error] " + message;
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return "[Error] Unknown error while checking HUTCHA token. Please try again later.";
+        }
+    }
+
+
+    }
